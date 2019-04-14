@@ -241,6 +241,26 @@ bool SBWatchpoint::GetDescription(SBStream &description,
   return true;
 }
 
+std::string SBWatchpoint::GetOldValue() {
+  lldb::WatchpointSP watchpoint_sp(GetSP());
+  if (watchpoint_sp) {
+    std::lock_guard<std::recursive_mutex> guard(watchpoint_sp->GetTarget().GetAPIMutex());
+    return watchpoint_sp->GetOldValue();
+  }
+
+  return {};
+}
+
+std::string SBWatchpoint::GetNewValue() {
+  lldb::WatchpointSP watchpoint_sp(GetSP());
+  if (watchpoint_sp) {
+    std::lock_guard<std::recursive_mutex> guard(watchpoint_sp->GetTarget().GetAPIMutex());
+    return watchpoint_sp->GetNewValue();
+  }
+
+  return {};
+}
+
 void SBWatchpoint::Clear() {
   LLDB_INSTRUMENT_VA(this);
 

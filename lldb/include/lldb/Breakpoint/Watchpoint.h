@@ -131,6 +131,9 @@ public:
   Target &GetTarget() { return m_target; }
   const Status &GetError() { return m_error; }
 
+  std::string GetOldValue() const;
+  std::string GetNewValue() const;
+
   /// Returns the WatchpointOptions structure set for this watchpoint.
   ///
   /// \return

@@ -389,6 +389,28 @@ void Watchpoint::DumpWithLevel(Stream *s,
   }
 }
 
+std::string Watchpoint::GetOldValue() const {
+  if (m_old_value_sp) {
+    auto res = m_old_value_sp->GetValueAsCString();
+    if (res) {
+      return res;
+    }
+  }
+
+  return {};
+}
+
+std::string Watchpoint::GetNewValue() const {
+  if (m_new_value_sp) {
+    auto res = m_new_value_sp->GetValueAsCString();
+    if (res) {
+      return res;
+    }
+  }
+
+  return {};
+}
+
 bool Watchpoint::IsEnabled() const { return m_enabled; }
 
 // Within StopInfo.cpp, we purposely turn on the ephemeral mode right before

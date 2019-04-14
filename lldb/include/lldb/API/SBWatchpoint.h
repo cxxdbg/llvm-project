@@ -11,6 +11,7 @@
 
 #include "lldb/API/SBDefines.h"
 #include "lldb/API/SBType.h"
+#include <string>
 
 namespace lldb_private {
 namespace python {
@@ -67,6 +68,10 @@ public:
   void SetCondition(const char *condition);
 
   bool GetDescription(lldb::SBStream &description, DescriptionLevel level);
+
+  std::string GetOldValue();
+
+  std::string GetNewValue();
 
   void Clear();
 
