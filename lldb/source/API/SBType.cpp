@@ -576,7 +576,7 @@ SBTypeMember SBType::GetFieldAtIndex(uint32_t idx) {
 
   SBTypeMember sb_type_member;
   if (IsValid()) {
-    CompilerType this_type(m_opaque_sp->GetCompilerType(false));
+    CompilerType this_type(m_opaque_sp->GetCompilerType(true));
     if (this_type.IsValid()) {
       uint64_t bit_offset = 0;
       uint32_t bitfield_bit_size = 0;
