@@ -118,8 +118,10 @@ protected:
 
   const lldb_private::Address &ref() const;
 
+public:
   SBAddress(const lldb_private::Address &address);
 
+protected:
   void SetAddress(const lldb_private::Address &address);
 
 private:

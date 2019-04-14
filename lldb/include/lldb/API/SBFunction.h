@@ -67,9 +67,9 @@ public:
 
   bool GetDescription(lldb::SBStream &description);
 
-protected:
   lldb_private::Function *get();
 
+protected:
   void reset(lldb_private::Function *lldb_object_ptr);
 
 private:

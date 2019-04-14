@@ -77,12 +77,16 @@ protected:
   friend class lldb_private::ScriptInterpreter;
   friend class lldb_private::python::SWIGBridge;
 
+public:
   SBEvent(lldb::EventSP &event_sp);
 
+protected:
   SBEvent(lldb_private::Event *event);
 
+public:
   lldb::EventSP &GetSP() const;
 
+protected:
   void reset(lldb::EventSP &event_sp);
 
   void reset(lldb_private::Event *event);

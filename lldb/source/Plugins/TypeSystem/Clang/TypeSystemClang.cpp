@@ -289,7 +289,7 @@ static int64_t ReadVBaseOffsetFromVTable(Process &process,
                                              INT64_MAX, err);
 }
 
-static bool GetVBaseBitOffset(VTableContextBase &vtable_ctx,
+bool lldb_private::GetVBaseBitOffset(VTableContextBase &vtable_ctx,
                               ValueObject &valobj,
                               const ASTRecordLayout &record_layout,
                               const CXXRecordDecl *cxx_record_decl,

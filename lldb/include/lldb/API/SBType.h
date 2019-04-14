@@ -261,8 +261,10 @@ protected:
 
   const lldb_private::TypeImpl &ref() const;
 
+public:
   lldb::TypeImplSP GetSP();
 
+protected:
   void SetSP(const lldb::TypeImplSP &type_impl_sp);
 
   lldb::TypeImplSP m_opaque_sp;
@@ -282,7 +284,10 @@ protected:
 
   friend class lldb_private::python::SWIGBridge;
 
+public:
   SBType(const lldb_private::CompilerType &);
+
+protected:
   SBType(const lldb::TypeSP &);
   SBType(const lldb::TypeImplSP &);
 };

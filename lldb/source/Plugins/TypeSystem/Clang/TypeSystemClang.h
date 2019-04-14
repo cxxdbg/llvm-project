@@ -1366,6 +1366,13 @@ private:
       m_isolated_asts;
 };
 
+bool GetVBaseBitOffset(clang::VTableContextBase &vtable_ctx,
+                       ValueObject &valobj,
+                       const clang::ASTRecordLayout &record_layout,
+                       const clang::CXXRecordDecl *cxx_record_decl,
+                       const clang::CXXRecordDecl *base_class_decl,
+                       int32_t &bit_offset);
+
 } // namespace lldb_private
 
 #endif // LLDB_SOURCE_PLUGINS_TYPESYSTEM_CLANG_TYPESYSTEMCLANG_H

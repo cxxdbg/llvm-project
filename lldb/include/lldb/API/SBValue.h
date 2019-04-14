@@ -454,6 +454,7 @@ protected:
 
   SBValue(const lldb::ValueObjectSP &value_sp);
 
+public:
   /// Same as the protected version of GetSP that takes a locker, except that we
   /// make the
   /// locker locally in the function.  Since the Target API mutex is recursive,
@@ -467,6 +468,7 @@ protected:
   ///     can cons up, in accordance with the SBValue's settings.
   lldb::ValueObjectSP GetSP() const;
 
+protected:
   /// Get the appropriate ValueObjectSP from this SBValue, consulting the
   /// use_dynamic and use_synthetic options passed in to SetSP when the
   /// SBValue's contents were set.  Since this often requires examining memory,
@@ -492,10 +494,12 @@ protected:
   ///     can cons up, in accordance with the SBValue's settings.
   lldb::ValueObjectSP GetSP(ValueLocker &value_locker) const;
 
+public:
   // these calls do the right thing WRT adjusting their settings according to
   // the target's preferences
   void SetSP(const lldb::ValueObjectSP &sp);
 
+protected:
   void SetSP(const lldb::ValueObjectSP &sp, bool use_synthetic);
 
   void SetSP(const lldb::ValueObjectSP &sp, lldb::DynamicValueType use_dynamic);

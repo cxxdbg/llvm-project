@@ -229,6 +229,8 @@ public:
 
   SBValue GetSiginfo();
 
+  lldb::ThreadSP GetSP() const;
+
 private:
   friend class SBBreakpoint;
   friend class SBBreakpointLocation;
@@ -253,8 +255,6 @@ private:
 
   SBError ResumeNewPlan(lldb_private::ExecutionContext &exe_ctx,
                         lldb_private::ThreadPlan *new_plan);
-
-  lldb::ThreadSP GetSP() const;
 
   lldb::ExecutionContextRefSP m_opaque_sp;
 

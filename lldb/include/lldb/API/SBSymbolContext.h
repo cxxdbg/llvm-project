@@ -78,6 +78,7 @@ protected:
 
   const lldb_private::SymbolContext &operator*() const;
 
+public:
   lldb_private::SymbolContext *get() const;
 
 private:

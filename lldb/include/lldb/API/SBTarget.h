@@ -975,8 +975,10 @@ protected:
 
   SBTarget(const lldb::TargetSP &target_sp);
 
+public:
   lldb::TargetSP GetSP() const;
 
+protected:
   void SetSP(const lldb::TargetSP &target_sp);
 
 private:

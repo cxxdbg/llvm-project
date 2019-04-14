@@ -227,8 +227,10 @@ protected:
   friend class lldb_private::python::SWIGBridge;
   friend class lldb_private::lua::SWIGBridge;
 
+public:
   SBFrame(const lldb::StackFrameSP &lldb_object_sp);
 
+protected:
   lldb::StackFrameSP GetFrameSP() const;
 
   void SetFrameSP(const lldb::StackFrameSP &lldb_object_sp);

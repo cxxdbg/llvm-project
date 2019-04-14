@@ -527,12 +527,14 @@ private:
 
   void reset(const lldb::DebuggerSP &debugger_sp);
 
+public:
   lldb_private::Debugger *get() const;
 
   lldb_private::Debugger &ref() const;
 
   const lldb::DebuggerSP &get_sp() const;
 
+private:
   lldb::DebuggerSP m_opaque_sp;
 
 }; // class SBDebugger
