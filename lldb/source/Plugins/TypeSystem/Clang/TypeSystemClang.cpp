@@ -5408,6 +5408,10 @@ TypeSystemClang::GetNumChildren(lldb::opaque_compiler_type_t type,
   case clang::Type::LValueReference:
   case clang::Type::RValueReference:
   case clang::Type::ObjCObjectPointer: {
+    const clang::PointerType *pointer_type =
+        llvm::cast<clang::PointerType>(qual_type.getTypePtr());
+    clang::QualType pointee_type(pointer_type->getPointeeType());
+
     CompilerType pointee_clang_type(GetPointeeType(type));
 
     uint32_t num_pointee_children = 0;
@@ -5420,7 +5424,7 @@ TypeSystemClang::GetNumChildren(lldb::opaque_compiler_type_t type,
     }
     // If this type points to a simple type, then it has 1 child
     if (num_pointee_children == 0)
-      num_children = 1;
+      num_children = GetNumPointeeChildren(pointee_type);
     else
       num_children = num_pointee_children;
   } break;
