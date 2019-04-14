@@ -73,6 +73,8 @@ set(LLDB_GLOBAL_INIT_DIRECTORY "" CACHE STRING
   "Path to the global lldbinit directory. Relative paths are resolved relative to the
   directory containing the LLDB library.")
 
+option(LLDB_BUILD_STATIC_LIBLLDB "Build static liblldb library and use it in all tools" OFF)
+
 if (LLDB_USE_SYSTEM_DEBUGSERVER)
   # The custom target for the system debugserver has no install target, so we
   # need to remove it from the LLVM_DISTRIBUTION_COMPONENTS list.

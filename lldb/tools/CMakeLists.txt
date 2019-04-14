@@ -1,6 +1,9 @@
 add_subdirectory(argdumper)
 add_subdirectory(driver)
-add_subdirectory(intel-features)
+
+if(NOT "${LLDB_BUILD_STATIC_LIBLLDB}")
+  add_subdirectory(intel-features)
+endif()
 
 # We want lldb-test to be built only when it's needed,
 # i.e. if a target requires it as dependency. The typical

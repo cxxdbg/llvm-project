@@ -21,12 +21,19 @@ endif()
 
 add_subdirectory(Interfaces)
 
+if (LLDB_BUILD_STATIC_LIBLLDB)
+  set(liblldb_dependency liblldb)
+else()
+  set(liblldb_dependency)
+endif()
+
 add_lldb_library(lldbPluginScriptInterpreterPython PLUGIN
   PythonDataObjects.cpp
   PythonReadline.cpp
   ScriptInterpreterPython.cpp
 
   LINK_LIBS
+    ${liblldb_dependency}
     lldbBreakpoint
     lldbCore
     lldbDataFormatters
