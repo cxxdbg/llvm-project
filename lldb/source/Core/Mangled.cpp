@@ -306,6 +306,38 @@ ConstString Mangled::GetDemangledName() const {
         llvm_unreachable("eManglingSchemeNone was handled already");
       }
       if (demangled_name) {
+        // workaround for bug in llvm (libc++abi) demangler:
+        // replace &&& with & (SLDB-266)
+        const char *start = ::strstr(demangled_name, "&&&");
+        if (start != nullptr) {
+          const char *src = start;
+          char *dst = demangled_name + (start - demangled_name);
+          unsigned int num_amp = 0;
+
+          while (*src != 0) {
+            if (*src == '&') {
+              ++num_amp;
+
+              if (num_amp == 3) {
+                // don't copy the third & to dst, decrement dst
+                num_amp = 0;
+                --dst;
+              } else {
+                *dst = *src;
+                ++dst;
+              }
+            } else {
+              num_amp = 0;
+              *dst = *src;
+              ++dst;
+            }
+
+            ++src;
+          }
+
+          *dst = 0;
+        }
+
         m_demangled.SetStringWithMangledCounterpart(
             llvm::StringRef(demangled_name), m_mangled);
         free(demangled_name);
