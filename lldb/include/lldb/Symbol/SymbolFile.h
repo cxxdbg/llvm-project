@@ -491,6 +491,11 @@ public:
     return args;
   }
 
+  /// Returns pointer to instance of Type object for specified compiler type
+  virtual Type* GetTypeForCompilerType(lldb::opaque_compiler_type_t ct) const {
+      return nullptr;
+  }
+
 protected:
   void AssertModuleLock();
 

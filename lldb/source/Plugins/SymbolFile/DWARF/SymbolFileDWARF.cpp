@@ -2045,6 +2045,15 @@ void SymbolFileDWARF::UpdateExternalModuleListIfNeeded() {
   }
 }
 
+lldb_private::Type *SymbolFileDWARF::GetTypeForCompilerType(lldb::opaque_compiler_type_t ct) const {
+  auto it = m_clang_type_to_type.find(ct);
+  if (it == m_clang_type_to_type.end()) {
+    return nullptr;
+  }
+
+  return it->second;
+}
+
 SymbolFileDWARF::GlobalVariableMap &SymbolFileDWARF::GetGlobalAranges() {
   if (!m_global_aranges_up) {
     m_global_aranges_up = std::make_unique<GlobalVariableMap>();
@@ -3109,6 +3118,11 @@ TypeSP SymbolFileDWARF::ParseType(const SymbolContext &sc, const DWARFDIE &die,
             *die.GetDIERef());
       }
     }
+  }
+
+  if (type_sp) {
+    auto clang_type = type_sp->GetForwardCompilerType().GetOpaqueQualType();
+    m_clang_type_to_type.insert(std::make_pair(clang_type, type_sp.get()));
   }
 
   return type_sp;

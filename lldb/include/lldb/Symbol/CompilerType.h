@@ -530,6 +530,10 @@ public:
     m_type = nullptr;
   }
 
+  // Returns pointer to Type instance for this compiler type
+  Type*
+  GetDebuggerType() const;
+
 private:
 #ifndef NDEBUG
   /// If the type is valid, ask the TypeSystem to verify the integrity

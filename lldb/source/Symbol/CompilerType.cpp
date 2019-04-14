@@ -10,6 +10,7 @@
 
 #include "lldb/Core/Debugger.h"
 #include "lldb/Symbol/Type.h"
+#include "lldb/Symbol/SymbolFile.h"
 #include "lldb/Target/ExecutionContext.h"
 #include "lldb/Target/Process.h"
 #include "lldb/Utility/ConstString.h"
@@ -1230,6 +1231,15 @@ bool CompilerType::TypeSystemSPWrapper::operator==(
 TypeSystem *CompilerType::TypeSystemSPWrapper::operator->() const {
   assert(m_typesystem_sp);
   return m_typesystem_sp.get();
+}
+
+Type *CompilerType::GetDebuggerType() const {
+  auto symbols = m_type_system.lock()->GetSymbolFile();
+  if (!symbols) {
+    return nullptr;
+  }
+
+  return symbols->GetTypeForCompilerType(GetOpaqueQualType());
 }
 
 bool lldb_private::operator==(const lldb_private::CompilerType &lhs,

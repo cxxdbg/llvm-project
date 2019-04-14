@@ -340,6 +340,9 @@ public:
   virtual llvm::DenseMap<lldb::opaque_compiler_type_t, DIERef> &
   GetForwardDeclCompilerTypeToDIE();
 
+  /// Returns pointer to instance of Type object for specified compiler type
+  virtual lldb_private::Type* GetTypeForCompilerType(lldb::opaque_compiler_type_t ct) const;
+
   typedef llvm::DenseMap<const DWARFDebugInfoEntry *, lldb::VariableSP>
       DIEToVariableSP;
 
@@ -550,6 +553,7 @@ protected:
   /// valid value that can be used in DIERef objects which will contain
   /// an index that identifies the .DWO or .o file.
   std::optional<uint64_t> m_file_index;
+  llvm::DenseMap<lldb::opaque_compiler_type_t, lldb_private::Type*> m_clang_type_to_type;
 };
 } // namespace dwarf
 } // namespace lldb_private::plugin
