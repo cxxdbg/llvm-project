@@ -22,6 +22,7 @@
 #include "lldb/Target/Target.h"
 #include "lldb/Target/Thread.h"
 #include "lldb/Target/ThreadPlanRunToAddress.h"
+#include "lldb/Target/ThreadPlanStepInstruction.h"
 #include "lldb/Utility/LLDBLog.h"
 #include "lldb/Utility/Log.h"
 #include "lldb/Utility/ProcessInfo.h"
@@ -481,7 +482,15 @@ DynamicLoaderPOSIXDYLD::GetStepThroughTrampolinePlan(Thread &thread,
   const SymbolContext &context = frame->GetSymbolContext(eSymbolContextSymbol);
   Symbol *sym = context.symbol;
 
-  if (sym == nullptr || !sym->IsTrampoline())
+  if (sym == nullptr) {
+    // sometimes trampolines on linux even don't have symbols.
+    // Use step instruction plan as backup pass for that case
+    thread_plan_sp.reset(new ThreadPlanStepInstruction(thread, false, false,
+                                                       eVoteNoOpinion, eVoteNoOpinion));
+    return thread_plan_sp;
+  }
+
+  if (!sym->IsTrampoline())
     return thread_plan_sp;
 
   ConstString sym_name = sym->GetMangled().GetName(Mangled::ePreferMangled);
