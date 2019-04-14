@@ -110,6 +110,9 @@ typedef bool (*WatchpointHitCallback)(void *baton,
 typedef bool (*ThreadPlanShouldStopHereCallback)(
     ThreadPlan *current_plan, Flags &flags, lldb::FrameComparison operation,
     Status &status, void *baton);
+typedef bool (*ThreadPlanShouldStepThroughHereCallback)(
+    ThreadPlan *current_plan, Flags &flags, lldb::FrameComparison operation,
+    void *baton);
 typedef lldb::ThreadPlanSP (*ThreadPlanStepFromHereCallback)(
     ThreadPlan *current_plan, Flags &flags, lldb::FrameComparison operation,
     Status &status, void *baton);

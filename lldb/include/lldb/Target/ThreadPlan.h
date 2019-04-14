@@ -302,6 +302,7 @@ public:
     eKindStepInRange,
     eKindRunToAddress,
     eKindStepThrough,
+    eKindStepThroughFunction,
     eKindStepUntil,
     eKindSingleThreadTimeout,
   };

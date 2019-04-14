@@ -46,7 +46,7 @@ public:
   RegularExpression(RegularExpression &&rhs) = default;
 
   RegularExpression &operator=(RegularExpression &&rhs) = default;
-  RegularExpression &operator=(const RegularExpression &rhs) = default;
+  RegularExpression &operator=(const RegularExpression &rhs);
 
   /// Execute a regular expression match using the compiled regular expression
   /// that is already in this object against the given \a string. If any parens

@@ -220,6 +220,18 @@ const OptionValueRegex *OptionValue::GetAsRegex() const {
   return nullptr;
 }
 
+OptionValueRegexList *OptionValue::GetAsRegexList() {
+  if (GetType() == OptionValue::eTypeRegexList)
+    return static_cast<OptionValueRegexList *>(this);
+  return nullptr;
+}
+
+const OptionValueRegexList *OptionValue::GetAsRegexList() const {
+  if (GetType() == OptionValue::eTypeRegexList)
+    return static_cast<const OptionValueRegexList *>(this);
+  return nullptr;
+}
+
 OptionValueSInt64 *OptionValue::GetAsSInt64() {
   if (GetType() == OptionValue::eTypeSInt64)
     return static_cast<OptionValueSInt64 *>(this);
@@ -394,6 +406,13 @@ const RegularExpression *OptionValue::GetRegexValue() const {
   return nullptr;
 }
 
+const std::vector<RegularExpression> *OptionValue::GetRegexListValue() const {
+  std::lock_guard<std::mutex> lock(m_mutex);
+  if (const OptionValueRegexList *option_value = GetAsRegexList())
+    return option_value->GetCurrentValue();
+  return nullptr;
+}
+
 std::optional<int64_t> OptionValue::GetSInt64Value() const {
   std::lock_guard<std::mutex> lock(m_mutex);
   if (const OptionValueSInt64 *option_value = GetAsSInt64())
@@ -510,6 +529,8 @@ const char *OptionValue::GetBuiltinTypeAsCString(Type t) {
     return "properties";
   case eTypeRegex:
     return "regex";
+  case eTypeRegexList:
+    return "regex-list";
   case eTypeSInt64:
     return "int";
   case eTypeString:

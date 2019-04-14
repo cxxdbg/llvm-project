@@ -39,6 +39,7 @@
 #include "lldb/Target/ThreadPlanStepOverBreakpoint.h"
 #include "lldb/Target/ThreadPlanStepOverRange.h"
 #include "lldb/Target/ThreadPlanStepThrough.h"
+#include "lldb/Target/ThreadPlanStepThroughFunction.h"
 #include "lldb/Target/ThreadPlanStepUntil.h"
 #include "lldb/Target/ThreadSpec.h"
 #include "lldb/Target/UnwindLLDB.h"
@@ -109,9 +110,14 @@ ThreadProperties::ThreadProperties(bool is_global) : Properties() {
 
 ThreadProperties::~ThreadProperties() = default;
 
-const RegularExpression *ThreadProperties::GetSymbolsToAvoidRegexp() {
+const std::vector<RegularExpression> *ThreadProperties::GetSymbolsToAvoidRegexp() {
   const uint32_t idx = ePropertyStepAvoidRegex;
-  return GetPropertyAtIndexAs<const RegularExpression *>(idx);
+  return GetPropertyAtIndexAs<const std::vector<RegularExpression>*>(idx, {});
+}
+
+const std::vector<RegularExpression> *ThreadProperties::GetStepThroughRegexp() {
+  const uint32_t idx = ePropertyStepThroughRegex;
+  return GetPropertyAtIndexAs<const std::vector<RegularExpression>*>(idx, {});
 }
 
 FileSpecList ThreadProperties::GetLibrariesToAvoid() const {
@@ -1370,6 +1376,17 @@ ThreadPlanSP Thread::QueueThreadPlanForStepThrough(StackID &return_stack_id,
 
   status = QueueThreadPlan(thread_plan_sp, abort_other_plans);
   return thread_plan_sp;
+}
+
+lldb::ThreadPlanSP Thread::QueueThreadPlanForStepThroughFunction(const SymbolContext &addr_context,
+                                                                 lldb::RunMode stop_others,
+                                                                 bool abort_other_plans) {
+  ThreadPlanSP thread_plan(new ThreadPlanStepThroughFunction(*this, addr_context, stop_others));
+  if (!thread_plan->ValidatePlan(nullptr))
+    return ThreadPlanSP();
+
+  QueueThreadPlan(thread_plan, abort_other_plans);
+  return thread_plan;
 }
 
 ThreadPlanSP Thread::QueueThreadPlanForRunToAddress(bool abort_other_plans,

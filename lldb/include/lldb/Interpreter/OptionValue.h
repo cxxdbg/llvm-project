@@ -47,6 +47,7 @@ public:
     eTypePathMap,
     eTypeProperties,
     eTypeRegex,
+    eTypeRegexList,
     eTypeSInt64,
     eTypeString,
     eTypeUInt64,
@@ -175,6 +176,8 @@ public:
       return eTypeProperties;
     case 1u << eTypeRegex:
       return eTypeRegex;
+    case 1u << eTypeRegexList:
+      return eTypeRegexList;
     case 1u << eTypeSInt64:
       return eTypeSInt64;
     case 1u << eTypeString:
@@ -233,6 +236,9 @@ public:
 
   OptionValueRegex *GetAsRegex();
   const OptionValueRegex *GetAsRegex() const;
+
+  OptionValueRegexList *GetAsRegexList();
+  const OptionValueRegexList *GetAsRegexList() const;
 
   OptionValueSInt64 *GetAsSInt64();
   const OptionValueSInt64 *GetAsSInt64() const;
@@ -307,6 +313,8 @@ public:
       return GetFormatEntity();
     if constexpr (std::is_same_v<U, RegularExpression>)
       return GetRegexValue();
+    if constexpr (std::is_same_v<U, std::vector<RegularExpression>>)
+      return GetRegexListValue();
     return {};
   }
 
@@ -388,6 +396,7 @@ private:
 
   const FormatEntity::Entry *GetFormatEntity() const;
   const RegularExpression *GetRegexValue() const;
+  const std::vector<RegularExpression> *GetRegexListValue() const;
   
   mutable std::mutex m_mutex;
 };

@@ -12,6 +12,8 @@
 #include "lldb/Target/Thread.h"
 #include "lldb/Utility/LLDBLog.h"
 #include "lldb/Utility/Log.h"
+#include "lldb/Target/ThreadPlanStepThroughFunction.h"
+#include "lldb/Utility/RegularExpression.h"
 
 using namespace lldb;
 using namespace lldb_private;
@@ -53,6 +55,56 @@ bool ThreadPlanShouldStopHere::InvokeShouldStopHereCallback(
   }
 
   return should_stop_here;
+}
+
+bool ThreadPlanShouldStopHere::CheckShouldStepThroughHere(Thread &thread) {
+  if (!m_check_step_through_regex) {
+    Log *log = GetLog(LLDBLog::Step);
+    if (log) {
+      LLDB_LOGF(log, "ThreadPlanShouldStopHere::CheckShouldStepThroughHere "
+                     "check regex false, return");
+    }
+    return false;
+  }
+
+  std::vector<RegularExpression> step_through_regex_list =
+    *m_owner->GetThread().GetStepThroughRegexp();
+
+  if (m_step_through_regexp_ap) {
+    step_through_regex_list.push_back(*m_step_through_regexp_ap);
+  }
+
+  {
+    Log *log = GetLog(LLDBLog::Step);
+    if (log) {
+      log->Printf("ThreadPlanShouldStopHere::CheckShouldStepThroughHere: checking against %d regexps",
+                  (int)step_through_regex_list.size());
+    }
+  }
+
+  auto frame = thread.GetStackFrameAtIndex(0);
+  auto ctx = frame->GetSymbolContext(eSymbolContextFunction|eSymbolContextBlock|eSymbolContextSymbol);
+  auto fname = ctx.GetFunctionName(Mangled::ePreferDemangledWithoutRetType);
+  if (fname.IsEmpty())
+    return false;
+
+  for (auto && regex : step_through_regex_list) {
+    bool res = regex.Execute(llvm::StringRef(fname.GetCString()), nullptr);
+
+    Log *log = GetLog(LLDBLog::Step);
+    if (log) {
+      log->Printf("Checking step through function '%s' using regular expression '%s' -> %d",
+                  fname.AsCString(),
+                  regex.GetText().str().c_str(),
+                  static_cast<int>(res));
+    }
+
+    if (res) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 bool ThreadPlanShouldStopHere::DefaultShouldStopHereCallback(
@@ -152,10 +204,23 @@ ThreadPlanSP ThreadPlanShouldStopHere::QueueStepOutFromHerePlan(
   return return_plan_sp;
 }
 
-lldb::ThreadPlanSP ThreadPlanShouldStopHere::CheckShouldStopHereAndQueueStepOut(
-    lldb::FrameComparison operation, Status &status) {
-  if (!InvokeShouldStopHereCallback(operation, status))
+lldb::ThreadPlanSP ThreadPlanShouldStopHere::QueueStepThroughHerePlan(Thread &thread) {
+  auto frame = thread.GetStackFrameAtIndex(0).get();
+  auto sc = frame->GetSymbolContext(eSymbolContextSymbol);
+  return thread.QueueThreadPlanForStepThroughFunction(sc, eOnlyDuringStepping, false);
+}
+
+lldb::ThreadPlanSP ThreadPlanShouldStopHere::CheckShouldStopHereAndQueueStepAction(
+    Thread &thread, lldb::FrameComparison operation, Status &status) {
+  if (CheckShouldStepThroughHere(thread))
+    return QueueStepThroughHerePlan(thread);
+  else if (!InvokeShouldStopHereCallback(operation, status))
     return QueueStepOutFromHerePlan(m_flags, operation, status);
   else
     return ThreadPlanSP();
 }
+
+void ThreadPlanShouldStopHere::SetStepThroughRegexp(const std::string &expr) {
+    m_step_through_regexp_ap.reset(new RegularExpression(expr));
+}
+

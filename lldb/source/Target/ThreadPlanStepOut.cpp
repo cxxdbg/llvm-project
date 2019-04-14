@@ -310,7 +310,11 @@ bool ThreadPlanStepOut::DoPlanExplainsStop(Event *event_ptr) {
         }
 
         if (done) {
-          if (InvokeShouldStopHereCallback(eFrameCompareOlder, m_status)) {
+          if (CheckShouldStepThroughHere(GetThread())) {
+            m_step_out_further_plan_sp = QueueStepThroughHerePlan(GetThread());
+            return true;
+          }
+          else if (InvokeShouldStopHereCallback(eFrameCompareOlder, m_status)) {
             CalculateReturnValue();
             SetPlanComplete();
           }
@@ -372,7 +376,11 @@ bool ThreadPlanStepOut::ShouldStop(Event *event_ptr) {
   // is consult the ShouldStopHere, and we are done.
 
   if (done) {
-    if (InvokeShouldStopHereCallback(eFrameCompareOlder, m_status)) {
+    if (CheckShouldStepThroughHere(GetThread())) {
+      m_step_out_further_plan_sp = QueueStepThroughHerePlan(GetThread());
+      done = false;
+    }
+    else if (InvokeShouldStopHereCallback(eFrameCompareOlder, m_status)) {
       CalculateReturnValue();
       SetPlanComplete();
     } else {

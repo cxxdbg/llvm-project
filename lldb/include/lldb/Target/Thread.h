@@ -44,10 +44,13 @@ public:
   /// thread won't stop in during "step-in" operations.
   ///
   /// \return
-  ///    A pointer to a regular expression to compare against symbols,
+  ///    A pointer to a vector of regular expressions to compare against symbols,
   ///    or nullptr if all symbols are allowed.
   ///
-  const RegularExpression *GetSymbolsToAvoidRegexp();
+  const std::vector<RegularExpression> *GetSymbolsToAvoidRegexp();
+
+  /// Returns list of regular expressions to step through
+  const std::vector<RegularExpression> *GetStepThroughRegexp();
 
   FileSpecList GetLibrariesToAvoid() const;
 
@@ -930,6 +933,11 @@ public:
   QueueThreadPlanForStepThrough(StackID &return_stack_id,
                                 bool abort_other_plans, bool stop_other_threads,
                                 Status &status);
+
+  virtual lldb::ThreadPlanSP
+  QueueThreadPlanForStepThroughFunction(const SymbolContext &addr_context,
+                                        lldb::RunMode stop_others,
+                                        bool abort_other_plans);
 
   /// Gets the plan used to continue from the current PC.
   /// This is a simple plan, mostly useful as a backstop when you are continuing

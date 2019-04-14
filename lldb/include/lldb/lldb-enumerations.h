@@ -1368,6 +1368,17 @@ enum Severity {
   eSeverityInfo, // Equivalent to Remark used in clang.
 };
 
+//----------------------------------------------------------------------
+// LazyBool is for boolean values that need to be calculated lazily.
+// Values start off set to eLazyBoolCalculate, and then they can be
+// calculated once and set to eLazyBoolNo or eLazyBoolYes.
+//----------------------------------------------------------------------
+typedef enum XLazyBool {
+    eXLazyBoolCalculate  = -1,
+    eXLazyBoolNo         = 0,
+    eXLazyBoolYes        = 1
+} XLazyBool;
+
 } // namespace lldb
 
 #endif // LLDB_LLDB_ENUMERATIONS_H

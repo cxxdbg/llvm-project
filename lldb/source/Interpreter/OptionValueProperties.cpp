@@ -257,6 +257,18 @@ OptionValueProperties::GetPropertyAtIndexAsOptionValueFileSpec(
   return nullptr;
 }
 
+OptionValueRegexList *
+OptionValueProperties::GetPropertyAtIndexAsOptionValueRegexList(
+    const ExecutionContext *exe_ctx, uint32_t idx) const {
+  const Property *property = GetPropertyAtIndex(idx, exe_ctx);
+  if (property) {
+    OptionValue *value = property->GetValue().get();
+    if (value)
+      return value->GetAsRegexList();
+  }
+  return {};
+}
+
 OptionValueSInt64 *OptionValueProperties::GetPropertyAtIndexAsOptionValueSInt64(
     size_t idx, const ExecutionContext *exe_ctx) const {
   const Property *property = GetPropertyAtIndex(idx, exe_ctx);

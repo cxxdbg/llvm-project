@@ -18,7 +18,7 @@
 namespace lldb_private {
 
 class ThreadPlanStepOverRange : public ThreadPlanStepRange,
-                                ThreadPlanShouldStopHere,
+                                public ThreadPlanShouldStopHere,
                                 TimeoutResumeAll {
 public:
   ThreadPlanStepOverRange(Thread &thread, const AddressRange &range,

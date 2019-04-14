@@ -1083,6 +1083,9 @@ let Command = "thread step scope" in {
   def thread_step_scope_step_over_regexp : Option<"step-over-regexp", "r">,
     Group<1>, Arg<"RegularExpression">, Desc<"A regular expression that defines "
     "function names to not to stop at when stepping in.">;
+  def thread_step_scope_step_through_regexp : Option<"step-through-regexp", "s">,
+    Group<1>, Arg<"RegularExpression">, Desc<"A regular expression that defines"
+    "function names to not to step through when stepping in.">;
   def thread_step_scope_step_in_target : Option<"step-in-target", "t">,
     Group<1>, Arg<"FunctionName">, Desc<"The name of the directly called "
     "function step in should stop at when stepping into.">;

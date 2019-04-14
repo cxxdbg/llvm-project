@@ -155,7 +155,7 @@ bool ThreadPlanStepInRange::ShouldStop(Event *event_ptr) {
     // FIXME - This can be both a step in and a step out.  Probably should
     // record which in the m_virtual_step.
     m_sub_plan_sp =
-        CheckShouldStopHereAndQueueStepOut(eFrameCompareYounger, m_status);
+        CheckShouldStopHereAndQueueStepAction(GetThread(), eFrameCompareYounger, m_status);
   } else {
     // Stepping through should be done running other threads in general, since
     // we're setting a breakpoint and continuing.  So only stop others if we
@@ -180,7 +180,7 @@ bool ThreadPlanStepInRange::ShouldStop(Event *event_ptr) {
       if (!m_sub_plan_sp) {
         // Otherwise check the ShouldStopHere for step out:
         m_sub_plan_sp =
-            CheckShouldStopHereAndQueueStepOut(frame_order, m_status);
+            CheckShouldStopHereAndQueueStepAction(GetThread(), frame_order, m_status);
         if (log) {
           if (m_sub_plan_sp)
             LLDB_LOGF(log,
@@ -233,7 +233,7 @@ bool ThreadPlanStepInRange::ShouldStop(Event *event_ptr) {
     // If not, give the "should_stop" callback a chance to push a plan to get
     // us out of here. But only do that if we actually have stepped in.
     if (!m_sub_plan_sp && frame_order == eFrameCompareYounger)
-      m_sub_plan_sp = CheckShouldStopHereAndQueueStepOut(frame_order, m_status);
+      m_sub_plan_sp = CheckShouldStopHereAndQueueStepAction(GetThread(), frame_order, m_status);
 
     // If we've stepped in and we are going to stop here, check to see if we
     // were asked to run past the prologue, and if so do that.
@@ -328,11 +328,15 @@ bool ThreadPlanStepInRange::FrameMatchesAvoidCriteria() {
   if (libraries_say_avoid)
     return true;
 
+  std::vector<RegularExpression> avoid_regexp_list;
   const RegularExpression *avoid_regexp_to_use = m_avoid_regexp_up.get();
-  if (avoid_regexp_to_use == nullptr)
-    avoid_regexp_to_use = GetThread().GetSymbolsToAvoidRegexp();
-
   if (avoid_regexp_to_use != nullptr) {
+    avoid_regexp_list.push_back(*avoid_regexp_to_use);
+  } else {
+    avoid_regexp_list = *GetThread().GetSymbolsToAvoidRegexp();
+  } 
+
+  if (!avoid_regexp_list.empty()) {
     SymbolContext sc = frame->GetSymbolContext(
         eSymbolContextFunction | eSymbolContextBlock | eSymbolContextSymbol);
     if (sc.symbol != nullptr) {
@@ -340,8 +344,16 @@ bool ThreadPlanStepInRange::FrameMatchesAvoidCriteria() {
           sc.GetFunctionName(Mangled::ePreferDemangledWithoutArguments)
               .GetCString();
       if (frame_function_name) {
-        bool return_value = avoid_regexp_to_use->Execute(frame_function_name);
-        if (return_value) {
+        llvm::SmallVector<llvm::StringRef, 2> matches;
+        bool return_value = false;
+        for (auto && r : avoid_regexp_list) {
+          return_value = r.Execute(frame_function_name, &matches);
+          if (return_value) {
+            break;
+          }
+        }
+
+        if (return_value && matches.size() > 1) {
           LLDB_LOGF(GetLog(LLDBLog::Step),
                     "Stepping out of function \"%s\" because it matches the "
                     "avoid regexp \"%s\".",

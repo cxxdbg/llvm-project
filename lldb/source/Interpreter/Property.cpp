@@ -176,6 +176,11 @@ Property::Property(const PropertyDefinition &definition)
         std::make_shared<OptionValueRegex>(definition.default_cstr_value);
     break;
 
+  case OptionValue::eTypeRegexList:
+    m_value_sp =
+        std::make_shared<OptionValueRegexList>();
+    break;
+
   case OptionValue::eTypeSInt64: {
     // "definition.default_uint_value" is the default integer value if
     // "definition.default_cstr_value" is NULL, otherwise interpret

@@ -335,6 +335,11 @@ public:
       m_avoid_regexp.assign(std::string(option_arg));
       break;
 
+    case 's':
+      m_step_through_regexp.clear();
+      m_step_through_regexp.assign(std::string(option_arg));
+      break;
+
     case 't':
       m_step_in_target.clear();
       m_step_in_target.assign(std::string(option_arg));
@@ -360,6 +365,7 @@ public:
       m_run_mode = eAllThreads;
 
     m_avoid_regexp.clear();
+    m_step_through_regexp.clear();
     m_step_in_target.clear();
     m_step_count = 1;
     m_end_line = LLDB_INVALID_LINE_NUMBER;
@@ -371,6 +377,7 @@ public:
   LazyBool m_step_out_avoid_no_debug;
   RunMode m_run_mode;
   std::string m_avoid_regexp;
+  std::string m_step_through_regexp;
   std::string m_step_in_target;
   uint32_t m_step_count;
   uint32_t m_end_line;
@@ -533,6 +540,18 @@ protected:
           ThreadPlanStepInRange *step_in_range_plan =
               static_cast<ThreadPlanStepInRange *>(new_plan_sp.get());
           step_in_range_plan->SetAvoidRegexp(m_options.m_avoid_regexp.c_str());
+        }
+
+        if (new_plan_sp && !m_options.m_step_through_regexp.empty()) {
+          ThreadPlanStepInRange *step_in_range_plan =
+              static_cast<ThreadPlanStepInRange *>(new_plan_sp.get());
+          step_in_range_plan->SetStepThroughRegexp(m_options.m_step_through_regexp);
+        }
+
+        {
+          ThreadPlanStepInRange *step_in_range_plan =
+                static_cast<ThreadPlanStepInRange *>(new_plan_sp.get());
+          step_in_range_plan->SetCheckStepThroughRegex(true);
         }
       } else
         new_plan_sp = thread->QueueThreadPlanForStepSingleInstruction(

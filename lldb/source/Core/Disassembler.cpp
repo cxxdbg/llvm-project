@@ -20,7 +20,7 @@
 #include "lldb/Interpreter/OptionValue.h"
 #include "lldb/Interpreter/OptionValueArray.h"
 #include "lldb/Interpreter/OptionValueDictionary.h"
-#include "lldb/Interpreter/OptionValueRegex.h"
+#include "lldb/Interpreter/OptionValueRegexList.h"
 #include "lldb/Interpreter/OptionValueString.h"
 #include "lldb/Interpreter/OptionValueUInt64.h"
 #include "lldb/Symbol/Function.h"
@@ -244,7 +244,7 @@ bool Disassembler::ElideMixedSourceAndDisassemblyLine(
 
   // TODO: should we also check target.process.thread.step-avoid-libraries ?
 
-  const RegularExpression *avoid_regex = nullptr;
+  const std::vector<RegularExpression> *avoid_regex_list;
 
   // Skip any line #0 entries - they are implementation details
   if (line.line == 0)
@@ -252,28 +252,30 @@ bool Disassembler::ElideMixedSourceAndDisassemblyLine(
 
   ThreadSP thread_sp = exe_ctx.GetThreadSP();
   if (thread_sp) {
-    avoid_regex = thread_sp->GetSymbolsToAvoidRegexp();
+    avoid_regex_list = thread_sp->GetSymbolsToAvoidRegexp();
   } else {
     TargetSP target_sp = exe_ctx.GetTargetSP();
     if (target_sp) {
       Status error;
       OptionValueSP value_sp = target_sp->GetDebugger().GetPropertyValue(
           &exe_ctx, "target.process.thread.step-avoid-regexp", error);
-      if (value_sp && value_sp->GetType() == OptionValue::eTypeRegex) {
-        OptionValueRegex *re = value_sp->GetAsRegex();
+      if (value_sp && value_sp->GetType() == OptionValue::eTypeRegexList) {
+        const OptionValueRegexList *re = value_sp->GetAsRegexList();
         if (re) {
-          avoid_regex = re->GetCurrentValue();
+          avoid_regex_list = re->GetCurrentValue();
         }
       }
     }
   }
-  if (avoid_regex && sc.symbol != nullptr) {
+  if (avoid_regex_list->empty() && sc.symbol != nullptr) {
     const char *function_name =
         sc.GetFunctionName(Mangled::ePreferDemangledWithoutArguments)
             .GetCString();
-    if (function_name && avoid_regex->Execute(function_name)) {
-      // skip this source line
-      return true;
+    for (auto && r : *avoid_regex_list) {
+      if (function_name && r.Execute(function_name)) {
+        // skip this source line
+        return true;
+      }
     }
   }
   // don't skip this source line

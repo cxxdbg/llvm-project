@@ -26,6 +26,7 @@
 #include "lldb/Interpreter/OptionValuePathMappings.h"
 #include "lldb/Interpreter/OptionValueProperties.h"
 #include "lldb/Interpreter/OptionValueRegex.h"
+#include "lldb/Interpreter/OptionValueRegexList.h"
 #include "lldb/Interpreter/OptionValueSInt64.h"
 #include "lldb/Interpreter/OptionValueString.h"
 #include "lldb/Interpreter/OptionValueUInt64.h"

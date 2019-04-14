@@ -332,7 +332,7 @@ bool ThreadPlanStepOverRange::ShouldStop(Event *event_ptr) {
   // If we haven't figured out something to do yet, then ask the ShouldStopHere
   // callback:
   if (!new_plan_sp) {
-    new_plan_sp = CheckShouldStopHereAndQueueStepOut(frame_order, m_status);
+    new_plan_sp = CheckShouldStopHereAndQueueStepAction(GetThread(), frame_order, m_status);
   }
 
   if (!new_plan_sp)

@@ -45,6 +45,7 @@ add_lldb_library(lldbInterpreter NO_PLUGIN_DEPENDENCIES
   OptionValuePathMappings.cpp
   OptionValueProperties.cpp
   OptionValueRegex.cpp
+  OptionValueRegexList.cpp
   OptionValueSInt64.cpp
   OptionValueString.cpp
   OptionValueUInt64.cpp

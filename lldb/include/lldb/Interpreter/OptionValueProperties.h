@@ -124,6 +124,10 @@ public:
   OptionValueFileSpec *GetPropertyAtIndexAsOptionValueFileSpec(
       size_t idx, const ExecutionContext *exe_ctx = nullptr) const;
 
+  OptionValueRegexList *
+  GetPropertyAtIndexAsOptionValueRegexList(const ExecutionContext *exe_ctx,
+                                           uint32_t idx) const;
+
   OptionValuePathMappings *GetPropertyAtIndexAsOptionValuePathMappings(
       size_t idx, const ExecutionContext *exe_ctx = nullptr) const;
 

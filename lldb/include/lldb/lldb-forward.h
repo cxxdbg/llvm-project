@@ -154,6 +154,7 @@ class OptionValueLanguage;
 class OptionValuePathMappings;
 class OptionValueProperties;
 class OptionValueRegex;
+class OptionValueRegexList;
 class OptionValueSInt64;
 class OptionValueString;
 class OptionValueUInt64;

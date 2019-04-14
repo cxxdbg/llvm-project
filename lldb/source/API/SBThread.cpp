@@ -37,6 +37,7 @@
 #include "lldb/Target/ThreadPlanStepInRange.h"
 #include "lldb/Target/ThreadPlanStepInstruction.h"
 #include "lldb/Target/ThreadPlanStepOut.h"
+#include "lldb/Target/ThreadPlanStepOverRange.h"
 #include "lldb/Target/ThreadPlanStepRange.h"
 #include "lldb/Utility/Instrumentation.h"
 #include "lldb/Utility/State.h"
@@ -527,14 +528,19 @@ SBError SBThread::ResumeNewPlan(ExecutionContext &exe_ctx,
   return sb_error;
 }
 
-void SBThread::StepOver(lldb::RunMode stop_other_threads) {
+void SBThread::StepOver(lldb::RunMode stop_other_threads, const std::string &step_through_regex) {
   LLDB_INSTRUMENT_VA(this, stop_other_threads);
 
   SBError error; // Ignored
-  StepOver(stop_other_threads, error);
+  StepOver(stop_other_threads, step_through_regex, error);
 }
 
 void SBThread::StepOver(lldb::RunMode stop_other_threads, SBError &error) {
+  LLDB_INSTRUMENT_VA(this, stop_other_threads, error);
+  StepOver(stop_other_threads, {}, error);
+}
+
+void SBThread::StepOver(lldb::RunMode stop_other_threads, const std::string &step_through_regex, SBError &error) {
   LLDB_INSTRUMENT_VA(this, stop_other_threads, error);
 
   std::unique_lock<std::recursive_mutex> lock;
@@ -558,6 +564,12 @@ void SBThread::StepOver(lldb::RunMode stop_other_threads, SBError &error) {
       new_plan_sp = thread->QueueThreadPlanForStepOverRange(
           abort_other_plans, sc.line_entry, sc, stop_other_threads,
           new_plan_status, avoid_no_debug);
+
+      auto step_over_range_plan = static_cast<ThreadPlanStepOverRange*>(new_plan_sp.get());
+      step_over_range_plan->SetCheckStepThroughRegex(true);
+      if (!step_through_regex.empty()) {
+        step_over_range_plan->SetStepThroughRegexp(step_through_regex);
+      }
     } else {
       new_plan_sp = thread->QueueThreadPlanForStepSingleInstruction(
           true, abort_other_plans, stop_other_threads, new_plan_status);
@@ -577,11 +589,25 @@ void SBThread::StepInto(const char *target_name,
   LLDB_INSTRUMENT_VA(this, target_name, stop_other_threads);
 
   SBError error; // Ignored
-  StepInto(target_name, LLDB_INVALID_LINE_NUMBER, error, stop_other_threads);
+  StepInto(target_name, LLDB_INVALID_LINE_NUMBER, error, stop_other_threads, eXLazyBoolCalculate, {}, {});
 }
 
 void SBThread::StepInto(const char *target_name, uint32_t end_line,
                         SBError &error, lldb::RunMode stop_other_threads) {
+  LLDB_INSTRUMENT_VA(this, target_name, end_line, error, stop_other_threads);
+
+  StepInto (target_name, end_line, error, stop_other_threads, eXLazyBoolCalculate, {}, {});
+}
+
+void
+SBThread::StepInto (const char *target_name,
+                    uint32_t end_line,
+                    SBError &error,
+                    lldb::RunMode stop_other_threads,
+                    XLazyBool avoid_nodebug,
+                    const std::string &avoid_regex,
+                    const std::string &step_through_regex)
+{
   LLDB_INSTRUMENT_VA(this, target_name, end_line, error, stop_other_threads);
 
   std::unique_lock<std::recursive_mutex> lock;
@@ -600,6 +626,11 @@ void SBThread::StepInto(const char *target_name, uint32_t end_line,
   Status new_plan_status;
 
   if (frame_sp && frame_sp->HasDebugInformation()) {
+    const LazyBool step_out_avoids_code_without_debug_info =
+            static_cast<LazyBool>(avoid_nodebug);
+    const LazyBool step_in_avoids_code_without_debug_info =
+            static_cast<LazyBool>(avoid_nodebug);
+
     SymbolContext sc(frame_sp->GetSymbolContext(eSymbolContextEverything));
     AddressRange range;
     if (end_line == LLDB_INVALID_LINE_NUMBER)
@@ -612,14 +643,21 @@ void SBThread::StepInto(const char *target_name, uint32_t end_line,
       }
     }
 
-    const LazyBool step_out_avoids_code_without_debug_info =
-        eLazyBoolCalculate;
-    const LazyBool step_in_avoids_code_without_debug_info =
-        eLazyBoolCalculate;
     new_plan_sp = thread->QueueThreadPlanForStepInRange(
         abort_other_plans, range, sc, target_name, stop_other_threads,
         new_plan_status, step_in_avoids_code_without_debug_info,
         step_out_avoids_code_without_debug_info);
+
+    if (!avoid_regex.empty()) {
+      auto step_in_range_plan = static_cast<ThreadPlanStepInRange*>(new_plan_sp.get());
+      step_in_range_plan->SetAvoidRegexp(avoid_regex.c_str());
+    }
+
+    auto step_in_range_plan = static_cast<ThreadPlanStepInRange*>(new_plan_sp.get());
+    step_in_range_plan->SetCheckStepThroughRegex(true);
+    if (!step_through_regex.empty()) {
+      step_in_range_plan->SetStepThroughRegexp(step_through_regex);
+    }
   } else {
     new_plan_sp = thread->QueueThreadPlanForStepSingleInstruction(
         false, abort_other_plans, stop_other_threads, new_plan_status);
@@ -635,10 +673,15 @@ void SBThread::StepOut() {
   LLDB_INSTRUMENT_VA(this);
 
   SBError error; // Ignored
-  StepOut(error);
+  StepOut(error, eXLazyBoolCalculate, {});
 }
 
 void SBThread::StepOut(SBError &error) {
+  LLDB_INSTRUMENT_VA(this, error);
+  StepOut(error, eXLazyBoolCalculate, {});
+}
+
+void SBThread::StepOut(SBError &error, XLazyBool avoid_no_debug, const std::string &step_through_regex) {
   LLDB_INSTRUMENT_VA(this, error);
 
   std::unique_lock<std::recursive_mutex> lock;
@@ -654,11 +697,17 @@ void SBThread::StepOut(SBError &error) {
 
   Thread *thread = exe_ctx.GetThreadPtr();
 
-  const LazyBool avoid_no_debug = eLazyBoolCalculate;
+  auto avoid = static_cast<LazyBool>(avoid_no_debug);
   Status new_plan_status;
   ThreadPlanSP new_plan_sp(thread->QueueThreadPlanForStepOut(
       abort_other_plans, nullptr, false, stop_other_threads, eVoteYes,
-      eVoteNoOpinion, 0, new_plan_status, avoid_no_debug));
+      eVoteNoOpinion, 0, new_plan_status, avoid));
+
+  auto step_out_plan = static_cast<ThreadPlanStepOut*>(new_plan_sp.get());
+  step_out_plan->SetCheckStepThroughRegex(true);
+  if (!step_through_regex.empty()) {
+    step_out_plan->SetStepThroughRegexp(step_through_regex);
+  }
 
   if (new_plan_status.Success())
     error = ResumeNewPlan(exe_ctx, new_plan_sp.get());

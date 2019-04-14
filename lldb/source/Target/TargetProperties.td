@@ -318,10 +318,14 @@ let Definition = "thread" in {
     Global,
     DefaultFalse,
     Desc<"If true, when step-in/step-out/step-over leave the current frame, they will continue to step out till they come to a function with debug information. Passing a frame argument to step-out will override this option.">;
-  def StepAvoidRegex: Property<"step-avoid-regexp", "Regex">,
+  def StepAvoidRegex: Property<"step-avoid-regexp", "RegexList">,
     Global,
-    DefaultStringValue<"^std::">,
-    Desc<"A regular expression defining functions step-in won't stop in.">;
+    DefaultStringValue<"$^">,
+    Desc<"List of regular expressions defining functions step-in won't stop in.">;
+  def StepThroughRegex: Property<"step-through-regexp", "RegexList">,
+    Global,
+    DefaultStringValue<"">,
+    Desc<"List of regular expressions defining functions step-in will step through.">;
   def StepAvoidLibraries: Property<"step-avoid-libraries", "FileSpecList">,
     Global,
     DefaultStringValue<"">,

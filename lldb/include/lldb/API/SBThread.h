@@ -12,6 +12,7 @@
 #include "lldb/API/SBDefines.h"
 
 #include <cstdio>
+#include <string>
 
 namespace lldb_private {
 namespace python {
@@ -97,9 +98,12 @@ public:
 
   bool GetInfoItemByPathAsString(const char *path, SBStream &strm);
 
-  void StepOver(lldb::RunMode stop_other_threads = lldb::eOnlyDuringStepping);
+  void StepOver(lldb::RunMode stop_other_threads = lldb::eOnlyDuringStepping,
+                const std::string &step_through_regex = {});
 
   void StepOver(lldb::RunMode stop_other_threads, SBError &error);
+
+  void StepOver(lldb::RunMode stop_other_threads, const std::string &step_through_regex, SBError &error);
 
   void StepInto(lldb::RunMode stop_other_threads = lldb::eOnlyDuringStepping);
 
@@ -109,9 +113,19 @@ public:
   void StepInto(const char *target_name, uint32_t end_line, SBError &error,
                 lldb::RunMode stop_other_threads = lldb::eOnlyDuringStepping);
 
+  void StepInto(const char *target_name,
+                uint32_t end_line,
+                SBError &error,
+                RunMode stop_other_threads,
+                XLazyBool avoid_nodebug,
+                const std::string &avoid_regex,
+                const std::string &step_through_regex);
+
   void StepOut();
 
   void StepOut(SBError &error);
+
+  void StepOut(SBError &error, XLazyBool avoid_no_debug, const std::string &step_through_regex = {});
 
   void StepOutOfFrame(SBFrame &frame);
 

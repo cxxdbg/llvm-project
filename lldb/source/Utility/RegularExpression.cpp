@@ -29,6 +29,12 @@ bool RegularExpression::Execute(
   return m_regex.match(str, matches);
 }
 
+RegularExpression &RegularExpression::operator=(const RegularExpression &rhs) {
+  m_regex_text = rhs.m_regex_text;
+  m_regex = llvm::Regex(m_regex_text);
+  return *this;
+}
+
 bool RegularExpression::IsValid() const { return m_regex.isValid(); }
 
 llvm::StringRef RegularExpression::GetText() const { return m_regex_text; }

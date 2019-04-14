@@ -97,13 +97,22 @@ public:
   bool InvokeShouldStopHereCallback(lldb::FrameComparison operation,
                                     Status &status);
 
+  bool CheckShouldStepThroughHere(Thread &thread);
+    
   lldb::ThreadPlanSP
-  CheckShouldStopHereAndQueueStepOut(lldb::FrameComparison operation,
-                                     Status &status);
+  CheckShouldStopHereAndQueueStepAction(Thread &thread,
+                                        lldb::FrameComparison operation,
+                                        Status &status);
 
   lldb_private::Flags &GetFlags() { return m_flags; }
 
   const lldb_private::Flags &GetFlags() const { return m_flags; }
+
+  void SetStepThroughRegexp(const std::string &expr);
+
+  void SetCheckStepThroughRegex(bool val) {
+    m_check_step_through_regex = val;
+  }
 
 protected:
   static bool DefaultShouldStopHereCallback(ThreadPlan *current_plan,
@@ -120,6 +129,8 @@ protected:
   QueueStepOutFromHerePlan(Flags &flags, lldb::FrameComparison operation,
                            Status &status);
 
+  lldb::ThreadPlanSP QueueStepThroughHerePlan(Thread &thread);
+
   // Implement this, and call it in the plan's constructor to set the default
   // flags.
   virtual void SetFlagsToDefault() = 0;
@@ -128,6 +139,13 @@ protected:
   void *m_baton;
   ThreadPlan *m_owner;
   lldb_private::Flags m_flags;
+  std::unique_ptr<RegularExpression> m_step_through_regexp_ap;
+
+  // If true then plan will check stop point for step through regex
+  // and queue step through function plan if matches.
+  // Default value is true. Should be false for step out plans
+  // queued from ShouldStopHere check
+  bool m_check_step_through_regex = false;
 
 private:
   ThreadPlanShouldStopHere(const ThreadPlanShouldStopHere &) = delete;
