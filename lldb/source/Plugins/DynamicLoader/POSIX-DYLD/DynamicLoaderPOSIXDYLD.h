@@ -162,6 +162,10 @@ protected:
   /// success and LLDB_INVALID_ADDRESS on failure.
   lldb::addr_t ComputeLoadOffset();
 
+  /// Computes address of entry point to set breakpoint for initializing
+  /// dyld rendevouz structure
+  lldb::addr_t GetEntryPointForProbe();
+
   /// Computes a value for m_entry_point returning the computed address on
   /// success and LLDB_INVALID_ADDRESS on failure.
   lldb::addr_t GetEntryPoint();

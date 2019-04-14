@@ -206,7 +206,7 @@ void DynamicLoaderPOSIXDYLD::ProbeEntry() {
   if (IsCoreFile())
     return;
 
-  const addr_t entry = GetEntryPoint();
+  const addr_t entry = GetEntryPointForProbe();
   if (entry == LLDB_INVALID_ADDRESS) {
     LLDB_LOGF(
         log,
@@ -709,6 +709,95 @@ void DynamicLoaderPOSIXDYLD::EvalSpecialModulesStatus() {
   if (std::optional<uint64_t> interpreter_base =
           m_auxv->GetAuxValue(AuxVector::AUXV_AT_BASE))
     m_interpreter_base = *interpreter_base;
+}
+
+addr_t DynamicLoaderPOSIXDYLD::GetEntryPointForProbe() {
+
+  Log *log = GetLog(LLDBLog::DynamicLoader);
+
+  // first trying set breakpoint at dynamic linker debug entry
+
+  // getting image base address (interpreter address)
+  auto v = m_auxv->GetAuxValue(AuxVector::AUXV_AT_BASE);
+  if (v && static_cast<addr_t>(*v) != 0) {
+    lldb::addr_t base_addr = static_cast<addr_t>(*v);
+    if (log) {
+        log->Printf ("DynamicLoaderPOSIXDYLD::%s found base address: 0x%" PRIx64,
+                     __FUNCTION__, base_addr);
+    }
+
+
+    // reading interpreter file spec from .interp section
+    auto obj_file = GetTargetExecutable()->GetObjectFile();
+    auto sections = obj_file->GetSectionList();
+    auto section = sections->FindSectionByName(ConstString(".interp"));
+    if (section) {
+      std::vector<char> buf(section->GetByteSize());
+      auto sz = obj_file->ReadSectionData(section.get(), 0, &buf[0], buf.size());
+      std::string interp_name{&buf[0], sz};
+
+      if (log) {
+        log->Printf ("DynamicLoaderPOSIXDYLD::%s interpreter name: %s",
+                     __FUNCTION__, interp_name.c_str());
+      }
+
+      // loading dynamic linker module from base address
+      auto mod = LoadModuleAtAddress(FileSpec{interp_name},
+                                     LLDB_INVALID_ADDRESS,
+                                     base_addr,
+                                     false);
+      if (mod) {
+        // searching for dyld debug function
+
+        const char *func_names[] = {
+          "r_debug_state",
+          "_r_debug_state",
+          "_dl_debug_state",
+          "rtld_db_dlactivity",
+          "__dl_rtld_db_dlactivity",
+          "_rtld_debug_state"
+        };
+
+        for (size_t i = 0, e = sizeof(func_names) / sizeof(func_names[0]); i < e; ++i) {
+          const char *func_name = func_names[i];
+          auto sym = mod->FindFirstSymbolWithNameAndType(ConstString{func_name},
+                                                         eSymbolTypeCode);
+          if (sym) {
+            auto addr = sym->GetAddress().GetLoadAddress(&m_process->GetTarget());
+
+            if (log) {
+              log->Printf ("DynamicLoaderPOSIXDYLD::%s found dyld debug symbol %s"
+                           " at address 0x%" PRIx64,
+                           __FUNCTION__, func_name, base_addr);
+            }
+
+            return addr;
+          }
+        }
+      } else {
+        if (log) {
+          log->Printf ("DynamicLoaderPOSIXDYLD::%s can't load interp module "
+                       "from address 0x%" PRIx64,
+                       __FUNCTION__, base_addr);
+        }
+      }
+    } else {
+      if (log) {
+        log->Printf ("DynamicLoaderPOSIXDYLD::%s can't find .interp section",
+                     __FUNCTION__);
+      }
+    }
+  } else {
+    if (log) {
+      log->Printf ("DynamicLoaderPOSIXDYLD::%s can't find base address",
+                   __FUNCTION__);
+    }
+  }
+
+
+  // use AT_ENTRY entry point if dynamic linker debug entry is not found
+
+  return GetEntryPoint();
 }
 
 addr_t DynamicLoaderPOSIXDYLD::GetEntryPoint() {
