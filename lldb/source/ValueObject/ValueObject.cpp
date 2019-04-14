@@ -497,6 +497,7 @@ ValueObject *ValueObject::CreateChildAtIndex(size_t idx) {
   bool child_is_deref_of_parent = false;
   uint64_t language_flags = 0;
   const bool transparent_pointers = true;
+  Declaration decl;
 
   ExecutionContext exe_ctx(GetExecutionContextRef());
 
@@ -505,7 +506,8 @@ ValueObject *ValueObject::CreateChildAtIndex(size_t idx) {
           &exe_ctx, idx, transparent_pointers, omit_empty_base_classes,
           ignore_array_bounds, child_name, child_byte_size, child_byte_offset,
           child_bitfield_bit_size, child_bitfield_bit_offset,
-          child_is_base_class, child_is_deref_of_parent, this, language_flags);
+          child_is_base_class, child_is_deref_of_parent, this, language_flags,
+          decl);
   if (!child_compiler_type_or_err || !child_compiler_type_or_err->IsValid()) {
     LLDB_LOG_ERROR(GetLog(LLDBLog::Types),
                    child_compiler_type_or_err.takeError(),
@@ -517,7 +519,7 @@ ValueObject *ValueObject::CreateChildAtIndex(size_t idx) {
       *this, *child_compiler_type_or_err, ConstString(child_name),
       child_byte_size, child_byte_offset, child_bitfield_bit_size,
       child_bitfield_bit_offset, child_is_base_class, child_is_deref_of_parent,
-      eAddressTypeInvalid, language_flags);
+      eAddressTypeInvalid, language_flags, decl);
 }
 
 ValueObject *ValueObject::CreateSyntheticArrayMember(size_t idx) {
@@ -532,6 +534,7 @@ ValueObject *ValueObject::CreateSyntheticArrayMember(size_t idx) {
   bool child_is_deref_of_parent = false;
   uint64_t language_flags = 0;
   const bool transparent_pointers = false;
+  Declaration decl;
 
   ExecutionContext exe_ctx(GetExecutionContextRef());
 
@@ -540,7 +543,8 @@ ValueObject *ValueObject::CreateSyntheticArrayMember(size_t idx) {
           &exe_ctx, 0, transparent_pointers, omit_empty_base_classes,
           ignore_array_bounds, child_name, child_byte_size, child_byte_offset,
           child_bitfield_bit_size, child_bitfield_bit_offset,
-          child_is_base_class, child_is_deref_of_parent, this, language_flags);
+          child_is_base_class, child_is_deref_of_parent, this, language_flags,
+          decl);
   if (!child_compiler_type_or_err) {
     LLDB_LOG_ERROR(GetLog(LLDBLog::Types),
                    child_compiler_type_or_err.takeError(),
@@ -555,7 +559,7 @@ ValueObject *ValueObject::CreateSyntheticArrayMember(size_t idx) {
         *this, *child_compiler_type_or_err, ConstString(child_name),
         child_byte_size, child_byte_offset, child_bitfield_bit_size,
         child_bitfield_bit_offset, child_is_base_class,
-        child_is_deref_of_parent, eAddressTypeInvalid, language_flags);
+        child_is_deref_of_parent, eAddressTypeInvalid, language_flags, decl);
   }
 
   // In case of an incomplete type, try to use the ValueObject's
@@ -1853,7 +1857,7 @@ ValueObjectSP ValueObject::GetSyntheticBitFieldChild(uint32_t from, uint32_t to,
       ValueObjectChild *synthetic_child = new ValueObjectChild(
           *this, GetCompilerType(), index_const_str, GetByteSize().value_or(0),
           0, bit_field_size, bit_field_offset, false, false,
-          eAddressTypeInvalid, 0);
+          eAddressTypeInvalid, 0, Declaration());
 
       // Cache the value if we got one back...
       if (synthetic_child) {
@@ -1894,7 +1898,7 @@ ValueObjectSP ValueObject::GetSyntheticChildAtOffset(
     return {};
   ValueObjectChild *synthetic_child =
       new ValueObjectChild(*this, type, name_const_str, *size, offset, 0, 0,
-                           false, false, eAddressTypeInvalid, 0);
+                           false, false, eAddressTypeInvalid, 0, Declaration());
   if (synthetic_child) {
     AddSyntheticChild(name_const_str, synthetic_child);
     synthetic_child_sp = synthetic_child->GetSP();
@@ -1936,7 +1940,7 @@ ValueObjectSP ValueObject::GetSyntheticBase(uint32_t offset,
     return {};
   ValueObjectChild *synthetic_child =
       new ValueObjectChild(*this, type, name_const_str, *size, offset, 0, 0,
-                           is_base_class, false, eAddressTypeInvalid, 0);
+                           is_base_class, false, eAddressTypeInvalid, 0, Declaration());
   if (synthetic_child) {
     AddSyntheticChild(name_const_str, synthetic_child);
     synthetic_child_sp = synthetic_child->GetSP();
@@ -2839,6 +2843,7 @@ ValueObjectSP ValueObject::Dereference(Status &error) {
     const bool transparent_pointers = false;
     CompilerType compiler_type = GetCompilerType();
     uint64_t language_flags = 0;
+    Declaration decl;
 
     ExecutionContext exe_ctx(GetExecutionContextRef());
 
@@ -2847,7 +2852,7 @@ ValueObjectSP ValueObject::Dereference(Status &error) {
         &exe_ctx, 0, transparent_pointers, omit_empty_base_classes,
         ignore_array_bounds, child_name_str, child_byte_size, child_byte_offset,
         child_bitfield_bit_size, child_bitfield_bit_offset, child_is_base_class,
-        child_is_deref_of_parent, this, language_flags);
+        child_is_deref_of_parent, this, language_flags, decl);
     if (!child_compiler_type_or_err)
       LLDB_LOG_ERROR(GetLog(LLDBLog::Types),
                      child_compiler_type_or_err.takeError(),
@@ -2864,7 +2869,7 @@ ValueObjectSP ValueObject::Dereference(Status &error) {
           *this, child_compiler_type, child_name, child_byte_size,
           child_byte_offset, child_bitfield_bit_size, child_bitfield_bit_offset,
           child_is_base_class, child_is_deref_of_parent, eAddressTypeInvalid,
-          language_flags);
+          language_flags, decl);
     }
 
     // In case of incomplete child compiler type, use the pointee type and try
@@ -2885,7 +2890,7 @@ ValueObjectSP ValueObject::Dereference(Status &error) {
               *this, child_compiler_type, child_name, child_byte_size,
               child_byte_offset, child_bitfield_bit_size,
               child_bitfield_bit_offset, child_is_base_class,
-              child_is_deref_of_parent, eAddressTypeInvalid, language_flags);
+              child_is_deref_of_parent, eAddressTypeInvalid, language_flags, decl);
         }
       }
     }

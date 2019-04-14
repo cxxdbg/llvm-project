@@ -63,6 +63,7 @@ ValueObject *ValueObjectConstResultImpl::CreateChildAtIndex(size_t idx) {
   uint64_t language_flags;
   const bool transparent_pointers = true;
   CompilerType compiler_type = m_impl_backend->GetCompilerType();
+  Declaration decl;
 
   ExecutionContext exe_ctx(m_impl_backend->GetExecutionContextRef());
 
@@ -70,7 +71,7 @@ ValueObject *ValueObjectConstResultImpl::CreateChildAtIndex(size_t idx) {
       &exe_ctx, idx, transparent_pointers, omit_empty_base_classes,
       ignore_array_bounds, child_name, child_byte_size, child_byte_offset,
       child_bitfield_bit_size, child_bitfield_bit_offset, child_is_base_class,
-      child_is_deref_of_parent, m_impl_backend, language_flags);
+      child_is_deref_of_parent, m_impl_backend, language_flags, decl);
 
   // One might think we should check that the size of the children
   // is always strictly positive, hence we could avoid creating a
@@ -97,7 +98,7 @@ ValueObject *ValueObjectConstResultImpl::CreateChildAtIndex(size_t idx) {
       *m_impl_backend, *child_compiler_type_or_err, ConstString(child_name),
       child_byte_size, child_byte_offset, child_bitfield_bit_size,
       child_bitfield_bit_offset, child_is_base_class, child_is_deref_of_parent,
-      child_live_addr, language_flags);
+      child_live_addr, language_flags, decl);
 }
 
 ValueObject *
@@ -117,6 +118,7 @@ ValueObjectConstResultImpl::CreateSyntheticArrayMember(size_t idx) {
   bool child_is_base_class = false;
   bool child_is_deref_of_parent = false;
   uint64_t language_flags;
+  Declaration decl;
 
   const bool transparent_pointers = false;
   CompilerType compiler_type = m_impl_backend->GetCompilerType();
@@ -127,7 +129,7 @@ ValueObjectConstResultImpl::CreateSyntheticArrayMember(size_t idx) {
       &exe_ctx, 0, transparent_pointers, omit_empty_base_classes,
       ignore_array_bounds, child_name, child_byte_size, child_byte_offset,
       child_bitfield_bit_size, child_bitfield_bit_offset, child_is_base_class,
-      child_is_deref_of_parent, m_impl_backend, language_flags);
+      child_is_deref_of_parent, m_impl_backend, language_flags, decl);
   // One might think we should check that the size of the children
   // is always strictly positive, hence we could avoid creating a
   // ValueObject if that's not the case, but it turns out there
@@ -154,7 +156,7 @@ ValueObjectConstResultImpl::CreateSyntheticArrayMember(size_t idx) {
       *m_impl_backend, *child_compiler_type_or_err, ConstString(child_name),
       child_byte_size, child_byte_offset, child_bitfield_bit_size,
       child_bitfield_bit_offset, child_is_base_class, child_is_deref_of_parent,
-      child_live_addr, language_flags);
+      child_live_addr, language_flags, decl);
 }
 
 lldb::ValueObjectSP ValueObjectConstResultImpl::GetSyntheticChildAtOffset(

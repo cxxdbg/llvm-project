@@ -14,6 +14,7 @@
 #include "Plugins/TypeSystem/Clang/TypeSystemClang.h"
 #include "Utility/PPC64LE_DWARF_Registers.h"
 #include "Utility/PPC64_DWARF_Registers.h"
+#include "lldb/Core/Declaration.h"
 #include "lldb/Core/Module.h"
 #include "lldb/Core/PluginManager.h"
 #include "lldb/Core/Value.h"
@@ -917,6 +918,7 @@ private:
     bool child_is_deref_of_parent;
     ValueObject *valobj = nullptr;
     uint64_t language_flags;
+    Declaration decl;
     ExecutionContext exe_ctx;
     m_thread.CalculateExecutionContext(exe_ctx);
 
@@ -924,7 +926,7 @@ private:
         &exe_ctx, i, transparent_pointers, omit_empty_base_classes,
         ignore_array_bounds, name, size, child_offs, child_bitfield_bit_size,
         child_bitfield_bit_offset, child_is_base_class,
-        child_is_deref_of_parent, valobj, language_flags);
+        child_is_deref_of_parent, valobj, language_flags, decl);
   }
 };
 

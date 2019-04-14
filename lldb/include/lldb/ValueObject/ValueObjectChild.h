@@ -18,6 +18,8 @@
 #include "lldb/lldb-private-enumerations.h"
 #include "lldb/lldb-types.h"
 
+#include "lldb/Core/Declaration.h"
+
 #include <cstddef>
 #include <cstdint>
 #include <optional>
@@ -53,6 +55,9 @@ public:
 
   bool IsDereferenceOfParent() override { return m_is_deref_of_parent; }
 
+  bool
+  GetDeclaration (Declaration &decl) override;
+
 protected:
   bool UpdateValue() override;
 
@@ -69,6 +74,7 @@ protected:
   bool m_is_base_class;
   bool m_is_deref_of_parent;
   std::optional<LazyBool> m_can_update_with_invalid_exe_ctx;
+  Declaration m_decl;
 
   friend class ValueObject;
   friend class ValueObjectConstResult;
@@ -80,7 +86,8 @@ protected:
                    uint32_t bitfield_bit_size, uint32_t bitfield_bit_offset,
                    bool is_base_class, bool is_deref_of_parent,
                    AddressType child_ptr_or_ref_addr_type,
-                   uint64_t language_flags);
+                   uint64_t language_flags,
+                   const Declaration &d);
 
   ValueObjectChild(const ValueObjectChild &) = delete;
   const ValueObjectChild &operator=(const ValueObjectChild &) = delete;

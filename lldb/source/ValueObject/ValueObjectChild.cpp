@@ -30,13 +30,15 @@ ValueObjectChild::ValueObjectChild(
     ValueObject &parent, const CompilerType &compiler_type, ConstString name,
     uint64_t byte_size, int32_t byte_offset, uint32_t bitfield_bit_size,
     uint32_t bitfield_bit_offset, bool is_base_class, bool is_deref_of_parent,
-    AddressType child_ptr_or_ref_addr_type, uint64_t language_flags)
+    AddressType child_ptr_or_ref_addr_type, uint64_t language_flags,
+    const Declaration &d)
     : ValueObject(parent), m_compiler_type(compiler_type),
       m_byte_size(byte_size), m_byte_offset(byte_offset),
       m_bitfield_bit_size(bitfield_bit_size),
       m_bitfield_bit_offset(bitfield_bit_offset),
       m_is_base_class(is_base_class), m_is_deref_of_parent(is_deref_of_parent),
-      m_can_update_with_invalid_exe_ctx() {
+      m_can_update_with_invalid_exe_ctx(),
+      m_decl(d) {
   m_name = name;
   SetAddressTypeOfChildren(child_ptr_or_ref_addr_type);
   SetLanguageFlags(language_flags);
@@ -223,3 +225,13 @@ bool ValueObjectChild::IsInScope() {
     return root->IsInScope();
   return false;
 }
+
+
+bool ValueObjectChild::GetDeclaration (Declaration &decl) {
+  if (m_decl.IsValid()) {
+    decl = m_decl;
+    return true;
+  }
+  return false;
+}
+

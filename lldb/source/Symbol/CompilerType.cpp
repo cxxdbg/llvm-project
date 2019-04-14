@@ -916,7 +916,7 @@ llvm::Expected<CompilerType> CompilerType::GetChildCompilerTypeAtIndex(
     int32_t &child_byte_offset, uint32_t &child_bitfield_bit_size,
     uint32_t &child_bitfield_bit_offset, bool &child_is_base_class,
     bool &child_is_deref_of_parent, ValueObject *valobj,
-    uint64_t &language_flags) const {
+    uint64_t &language_flags, Declaration &decl) const {
   if (IsValid())
     if (auto type_system_sp = GetTypeSystem())
       return type_system_sp->GetChildCompilerTypeAtIndex(
@@ -924,7 +924,7 @@ llvm::Expected<CompilerType> CompilerType::GetChildCompilerTypeAtIndex(
           ignore_array_bounds, child_name, child_byte_size, child_byte_offset,
           child_bitfield_bit_size, child_bitfield_bit_offset,
           child_is_base_class, child_is_deref_of_parent, valobj,
-          language_flags);
+          language_flags, decl);
   return CompilerType();
 }
 

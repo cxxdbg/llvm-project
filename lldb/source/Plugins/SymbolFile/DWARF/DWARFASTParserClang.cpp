@@ -106,6 +106,14 @@ static bool IsClangModuleFwdDecl(const DWARFDIE &Die) {
   return false;
 }
 
+lldb_private::Declaration DWARFASTParserClang::GetFieldDecl(clang::FieldDecl *decl) {
+  auto it = m_field_decls.find(decl);
+  if (it == m_field_decls.end())
+    return {};
+
+  return it->second;
+}
+
 static DWARFDIE GetContainingClangModuleDIE(const DWARFDIE &die) {
   if (die.IsValid()) {
     DWARFDIE top_module_die;
@@ -2635,6 +2643,15 @@ DWARFASTParserClang::MemberAttributes::MemberAttributes(
     DWARFFormValue form_value;
     if (attributes.ExtractFormValueAtIndex(i, form_value)) {
       switch (attr) {
+      case DW_AT_decl_file:
+        decl.SetFile(die.GetCU()->GetFile(form_value.Unsigned()));
+        break;
+      case DW_AT_decl_line:
+        decl.SetLine(form_value.Unsigned());
+        break;
+      case DW_AT_decl_column:
+        decl.SetColumn(form_value.Unsigned());
+        break;
       case DW_AT_name:
         name = form_value.AsCString();
         break;
@@ -3090,6 +3107,8 @@ void DWARFASTParserClang::ParseSingleMember(
 
   layout_info.field_offsets.insert(
       std::make_pair(field_decl, field_bit_offset));
+
+  m_field_decls.insert(std::make_pair(field_decl, attrs.decl));
 }
 
 bool DWARFASTParserClang::ParseChildMembers(

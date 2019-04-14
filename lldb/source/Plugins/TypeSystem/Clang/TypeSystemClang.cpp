@@ -6180,7 +6180,7 @@ llvm::Expected<CompilerType> TypeSystemClang::GetChildCompilerTypeAtIndex(
     uint32_t &child_byte_size, int32_t &child_byte_offset,
     uint32_t &child_bitfield_bit_size, uint32_t &child_bitfield_bit_offset,
     bool &child_is_base_class, bool &child_is_deref_of_parent,
-    ValueObject *valobj, uint64_t &language_flags) {
+    ValueObject *valobj, uint64_t &language_flags, Declaration &decl) {
   if (!type)
     return CompilerType();
 
@@ -6332,6 +6332,10 @@ llvm::Expected<CompilerType> TypeSystemClang::GetChildCompilerTypeAtIndex(
             child_byte_offset = bit_offset / 8;
           }
 
+          // try get declaration position of field
+          GetDWARFParser();
+          decl = m_dwarf_ast_parser_up->GetFieldDecl(*field);
+
           return field_clang_type;
         }
       }
@@ -6475,7 +6479,7 @@ llvm::Expected<CompilerType> TypeSystemClang::GetChildCompilerTypeAtIndex(
             ignore_array_bounds, child_name, child_byte_size, child_byte_offset,
             child_bitfield_bit_size, child_bitfield_bit_offset,
             child_is_base_class, tmp_child_is_deref_of_parent, valobj,
-            language_flags);
+            language_flags, decl);
       } else {
         child_is_deref_of_parent = true;
         const char *parent_name =
@@ -6555,7 +6559,7 @@ llvm::Expected<CompilerType> TypeSystemClang::GetChildCompilerTypeAtIndex(
           ignore_array_bounds, child_name, child_byte_size, child_byte_offset,
           child_bitfield_bit_size, child_bitfield_bit_offset,
           child_is_base_class, tmp_child_is_deref_of_parent, valobj,
-          language_flags);
+          language_flags, decl);
     } else {
       child_is_deref_of_parent = true;
 
@@ -6595,7 +6599,7 @@ llvm::Expected<CompilerType> TypeSystemClang::GetChildCompilerTypeAtIndex(
             ignore_array_bounds, child_name, child_byte_size, child_byte_offset,
             child_bitfield_bit_size, child_bitfield_bit_offset,
             child_is_base_class, tmp_child_is_deref_of_parent, valobj,
-            language_flags);
+            language_flags, decl);
       } else {
         const char *parent_name =
             valobj ? valobj->GetName().GetCString() : nullptr;

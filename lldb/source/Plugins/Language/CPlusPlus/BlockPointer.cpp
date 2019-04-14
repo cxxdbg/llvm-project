@@ -105,12 +105,13 @@ public:
     bool child_is_base_class = false;
     bool child_is_deref_of_parent = false;
     uint64_t language_flags = 0;
+    Declaration decl;
 
     auto child_type_or_err = m_block_struct_type.GetChildCompilerTypeAtIndex(
         &exe_ctx, idx, transparent_pointers, omit_empty_base_classes,
         ignore_array_bounds, child_name, child_byte_size, child_byte_offset,
         child_bitfield_bit_size, child_bitfield_bit_offset, child_is_base_class,
-        child_is_deref_of_parent, value_object, language_flags);
+        child_is_deref_of_parent, value_object, language_flags, decl);
     if (!child_type_or_err)
       return ValueObjectConstResult::Create(
           exe_ctx.GetBestExecutionContextScope(),

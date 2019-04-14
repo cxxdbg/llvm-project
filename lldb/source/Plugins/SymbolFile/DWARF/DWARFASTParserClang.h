@@ -113,6 +113,8 @@ public:
   void MapDeclDIEToDefDIE(const lldb_private::plugin::dwarf::DWARFDIE &decl_die,
                           const lldb_private::plugin::dwarf::DWARFDIE &def_die);
 
+  lldb_private::Declaration GetFieldDecl(clang::FieldDecl *decl);
+
 protected:
   /// Protected typedefs and members.
   /// @{
@@ -140,6 +142,7 @@ protected:
   DeclContextToDIEMap m_decl_ctx_to_die;
   DIEToModuleMap m_die_to_module;
   std::unique_ptr<lldb_private::ClangASTImporter> m_clang_ast_importer_up;
+  llvm::DenseMap<clang::FieldDecl *, lldb_private::Declaration> m_field_decls;
   /// @}
 
   clang::DeclContext *
@@ -330,6 +333,7 @@ private:
     uint32_t member_byte_offset = UINT32_MAX;
     bool is_artificial = false;
     bool is_declaration = false;
+    lldb_private::Declaration decl;
   };
 
   /// Returns 'true' if we should create an unnamed bitfield
