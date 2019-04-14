@@ -36,6 +36,10 @@ public:
 
   const char *GetMangledName() const;
 
+  const char *GetNameNoRetType() const;
+
+  const char *GetNameNoParams() const;
+
   lldb::SBInstructionList GetInstructions(lldb::SBTarget target);
 
   lldb::SBInstructionList GetInstructions(lldb::SBTarget target,

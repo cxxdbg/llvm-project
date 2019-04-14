@@ -106,6 +106,22 @@ bool SBFunction::GetDescription(SBStream &s) {
   return false;
 }
 
+const char *SBFunction::GetNameNoRetType() const {
+  const char *cstr = NULL;
+  if (m_opaque_ptr)
+    cstr = m_opaque_ptr->GetMangled().GetName(Mangled::ePreferDemangledWithoutRetType).AsCString();
+
+  return cstr;
+}
+
+const char *SBFunction::GetNameNoParams() const {
+  const char *cstr = NULL;
+  if (m_opaque_ptr)
+    cstr = m_opaque_ptr->GetMangled().GetName(Mangled::ePreferDemangledWithoutArguments).AsCString();
+
+  return cstr;
+}
+
 SBInstructionList SBFunction::GetInstructions(SBTarget target) {
   LLDB_INSTRUMENT_VA(this, target);
 

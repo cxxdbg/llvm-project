@@ -37,7 +37,8 @@ public:
   enum NamePreference {
     ePreferMangled,
     ePreferDemangled,
-    ePreferDemangledWithoutArguments
+    ePreferDemangledWithoutArguments,
+    ePreferDemangledWithoutRetType
   };
 
   enum ManglingScheme {
@@ -282,6 +283,14 @@ private:
   ConstString m_mangled;           ///< The mangled version of the name
   mutable ConstString m_demangled; ///< Mutable so we can get it on demand with
                                    ///a const version of this object
+
+  /// Demangled name without return type
+  /// C++ compiler adds return type to mangled name of template functions
+  /// returning type depended from template parameter
+  mutable ConstString m_demangledNameNoRetType;
+
+  /// Demangled name without return type and params
+  mutable ConstString m_demangledNameNoParams;
 };
 
 Stream &operator<<(Stream &s, const Mangled &obj);

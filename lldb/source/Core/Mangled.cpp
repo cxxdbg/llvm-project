@@ -342,11 +342,32 @@ ConstString Mangled::GetName(Mangled::NamePreference preference) const {
   // been demangled yet...
   ConstString demangled = GetDemangledName();
 
-  if (preference == ePreferDemangledWithoutArguments) {
-    if (Language *lang = Language::FindPlugin(GuessLanguage())) {
-      return lang->GetDemangledFunctionNameWithoutArguments(*this);
-    }
+  if (preference == ePreferDemangledWithoutRetType && m_demangledNameNoRetType) {
+    return m_demangledNameNoRetType;
   }
+
+  if (preference == ePreferDemangledWithoutArguments && m_demangledNameNoParams) {
+    return m_demangledNameNoParams;
+  }
+
+  if (preference == ePreferDemangledWithoutRetType ||
+      preference == ePreferDemangledWithoutArguments) {
+
+    if (!m_demangledNameNoParams) {
+      m_demangledNameNoRetType = m_demangled;
+
+      if (Language *lang = Language::FindPlugin(GuessLanguage())) {
+        m_demangledNameNoParams = lang->GetDemangledFunctionNameWithoutArguments(*this);
+      }
+    }
+
+    if (preference == ePreferDemangledWithoutRetType)
+      return m_demangledNameNoRetType;
+
+    assert(preference == ePreferDemangledWithoutArguments);
+    return m_demangledNameNoParams;
+  }
+
   if (preference == ePreferDemangled) {
     if (demangled)
       return demangled;
