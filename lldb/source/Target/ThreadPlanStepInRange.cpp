@@ -341,7 +341,7 @@ bool ThreadPlanStepInRange::FrameMatchesAvoidCriteria() {
         eSymbolContextFunction | eSymbolContextBlock | eSymbolContextSymbol);
     if (sc.symbol != nullptr) {
       const char *frame_function_name =
-          sc.GetFunctionName(Mangled::ePreferDemangledWithoutArguments)
+          sc.GetFunctionName(Mangled::ePreferDemangledWithoutRetType)
               .GetCString();
       if (frame_function_name) {
         llvm::SmallVector<llvm::StringRef, 2> matches;
