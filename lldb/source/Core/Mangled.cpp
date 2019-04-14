@@ -33,6 +33,8 @@
 #include <cstring>
 using namespace lldb_private;
 
+std::shared_ptr<Mangled::CustomFunctionNameParser> Mangled::m_customNameParser;
+
 static inline bool cstring_is_mangled(llvm::StringRef s) {
   return Mangled::GetManglingScheme(s) != Mangled::eManglingSchemeNone;
 }
@@ -353,6 +355,18 @@ ConstString Mangled::GetName(Mangled::NamePreference preference) const {
   if (preference == ePreferDemangledWithoutRetType ||
       preference == ePreferDemangledWithoutArguments) {
 
+    if (m_customNameParser) {
+      std::string nameNoRetType;
+      std::string nameNoParams;
+
+      auto res = m_customNameParser->parse(demangled.AsCString(""),
+                                           nameNoRetType, nameNoParams);
+      if (res) {
+        m_demangledNameNoRetType = ConstString{nameNoRetType};
+        m_demangledNameNoParams = ConstString{nameNoParams};
+      }
+    }
+
     if (!m_demangledNameNoParams) {
       m_demangledNameNoRetType = m_demangled;
 
@@ -422,6 +436,11 @@ lldb::LanguageType Mangled::GuessLanguage() const {
     return true;
   });
   return result;
+}
+
+void Mangled::SetCustomFunctionNameParser(const std::shared_ptr<CustomFunctionNameParser> & parser) {
+
+  m_customNameParser = parser;
 }
 
 // Dump OBJ to the supplied stream S.

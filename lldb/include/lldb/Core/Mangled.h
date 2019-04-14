@@ -50,6 +50,19 @@ public:
     eManglingSchemeSwift,
   };
 
+  /// Custom function name parser
+  class CustomFunctionNameParser {
+  public:
+    virtual ~CustomFunctionNameParser() = default;
+
+    /// Parses function name. Fills function name without return
+    /// type and function name without return type and parameters.
+    /// Return true if function name can be parsed.
+    virtual bool parse(const std::string & name,
+                       std::string &nameNoRetType,
+                       std::string &nameNoParams) const = 0;
+  };
+
   /// Default constructor.
   ///
   /// Initialize with both mangled and demangled names empty.
@@ -278,6 +291,9 @@ public:
   ///   table offsets in the cache data.
   void Encode(DataEncoder &encoder, ConstStringTable &strtab) const;
 
+  static void SetCustomFunctionNameParser(
+          const std::shared_ptr<CustomFunctionNameParser> & parser);
+
 private:
   /// Mangled member variables.
   ConstString m_mangled;           ///< The mangled version of the name
@@ -291,6 +307,9 @@ private:
 
   /// Demangled name without return type and params
   mutable ConstString m_demangledNameNoParams;
+
+  /// Custom function name parser
+  static std::shared_ptr<CustomFunctionNameParser> m_customNameParser;
 };
 
 Stream &operator<<(Stream &s, const Mangled &obj);
