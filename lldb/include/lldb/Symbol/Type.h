@@ -648,6 +648,8 @@ public:
 
   bool operator!=(const TypeImpl &rhs) const;
 
+  bool operator<(const TypeImpl &rhs) const;
+
   bool IsValid() const;
 
   explicit operator bool() const;

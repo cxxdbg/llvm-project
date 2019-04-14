@@ -256,6 +256,9 @@ public:
 
   bool operator!=(lldb::SBType &rhs);
 
+    bool
+    operator < (lldb::SBType rhs) const;
+
 protected:
   lldb_private::TypeImpl &ref();
 

@@ -79,6 +79,16 @@ bool SBType::operator!=(SBType &rhs) {
   return *m_opaque_sp.get() != *rhs.m_opaque_sp.get();
 }
 
+bool SBType::operator<(SBType rhs) const {
+  if (IsValid() == false)
+    return rhs.IsValid();
+
+  if (rhs.IsValid() == false)
+    return true;
+
+  return *m_opaque_sp.get() < *rhs.m_opaque_sp.get();
+}
+
 lldb::TypeImplSP SBType::GetSP() { return m_opaque_sp; }
 
 void SBType::SetSP(const lldb::TypeImplSP &type_impl_sp) {

@@ -1026,6 +1026,14 @@ bool TypeImpl::operator!=(const TypeImpl &rhs) const {
   return !(*this == rhs);
 }
 
+bool TypeImpl::operator<(const TypeImpl &rhs) const {
+  if (m_static_type == rhs.m_static_type) {
+    return m_dynamic_type < rhs.m_dynamic_type;
+  }
+
+  return m_static_type < rhs.m_static_type;
+}
+
 bool TypeImpl::IsValid() const {
   // just a name is not valid
   ModuleSP module_sp;
