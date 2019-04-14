@@ -234,10 +234,10 @@ bool ProcessGDBRemote::CanDebug(lldb::TargetSP target_sp,
     case ObjectFile::eTypeCoreFile:
     case ObjectFile::eTypeDebugInfo:
     case ObjectFile::eTypeObjectFile:
-    case ObjectFile::eTypeSharedLibrary:
     case ObjectFile::eTypeStubLibrary:
     case ObjectFile::eTypeJIT:
       return false;
+    case ObjectFile::eTypeSharedLibrary:
     case ObjectFile::eTypeExecutable:
     case ObjectFile::eTypeDynamicLinker:
     case ObjectFile::eTypeUnknown:
