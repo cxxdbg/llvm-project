@@ -1307,7 +1307,12 @@ DWARFASTParserClang::ParseSubroutine(const DWARFDIE &die,
   // definition and it affects our ability to use a class in the clang
   // expression parser. So for the greater good, we currently must not
   // allow any template member functions in a class definition.
-  if (is_cxx_method && has_template_params) {
+  // SLDB-324: Allow template instantiations of the operator() becasue
+  // we need it for formatting lambda types. We hope it will not affect
+  // expression parser.
+  if (is_cxx_method && has_template_params &&
+      attrs.name &&
+      strncmp(attrs.name.AsCString(), "operator()", 10) != 0) {
     ignore_containing_context = true;
     is_cxx_method = false;
   }

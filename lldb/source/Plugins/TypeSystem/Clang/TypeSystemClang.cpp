@@ -7787,7 +7787,14 @@ clang::CXXMethodDecl *TypeSystemClang::AddMethodToCXXRecordType(
   clang::CXXDestructorDecl *cxx_dtor_decl(nullptr);
   clang::CXXConstructorDecl *cxx_ctor_decl(nullptr);
 
-  if (is_artificial)
+  // SLDB-242: don't skip artificial operator() because it's used in
+  // lambda anonymous structs and is needed for support of formatting
+  // lambdas.
+  // SLDB-324: We check that function name starts with operator()
+  // instead of checking that function name is equal to operator()
+  // because operator() may be a template instantiation with
+  // name of form operator()<args>
+  if (is_artificial && strncmp(name.str().c_str(), "operator()", 10) != 0)
     return nullptr; // skip everything artificial
 
   const clang::ExplicitSpecifier explicit_spec(
