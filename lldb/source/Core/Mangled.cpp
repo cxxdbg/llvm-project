@@ -31,6 +31,7 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <cxxabi.h>
 using namespace lldb_private;
 
 std::shared_ptr<Mangled::CustomFunctionNameParser> Mangled::m_customNameParser;
@@ -169,6 +170,8 @@ static char *GetItaniumDemangledStr(const char *M) {
            "finishDemangle must always succeed if partialDemangle did");
     assert(demangled_cstr[demangled_size - 1] == '\0' &&
            "Expected demangled_size to return length including trailing null");
+  } else {
+    demangled_cstr = abi::__cxa_demangle(M, NULL, NULL, NULL);
   }
 
   if (Log *log = GetLog(LLDBLog::Demangle)) {
