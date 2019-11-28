@@ -1301,6 +1301,13 @@ CompilerType TypeSystemClang::CreateRecordType(
   if (metadata)
     SetMetadata(decl, *metadata);
 
+  // Microsoft CXX ABI requires inheritance tag on all records including undefined
+  if (ast.getTargetInfo().getCXXABI().getKind() == clang::TargetCXXABI::Kind::Microsoft) {
+    auto keyword = clang::MSInheritanceAttr::Keyword_single_inheritance;
+    auto attr = clang::MSInheritanceAttr::CreateImplicit(ast, keyword);
+    decl->addAttr(attr);
+  }
+
   if (access_type != eAccessNone)
     decl->setAccess(ConvertAccessTypeToAccessSpecifier(access_type));
 

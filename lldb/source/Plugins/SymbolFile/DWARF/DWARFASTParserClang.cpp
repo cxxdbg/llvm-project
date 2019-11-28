@@ -2192,6 +2192,32 @@ bool DWARFASTParserClang::CompleteRecordType(const DWARFDIE &die,
     m_ast.TransferBaseClasses(clang_type.GetOpaqueQualType(), std::move(bases));
   }
 
+  // setting up MSInheritance attribute for microsoft ABI
+  if (m_ast.getTargetInfo()->getCXXABI().getKind() ==
+      clang::TargetCXXABI::Kind::Microsoft) {
+
+    bool has_virtual = false;
+    for (auto & b : bases) {
+      if (b->isVirtual()) {
+        has_virtual = true;
+      }
+    }
+
+    auto keyword = clang::MSInheritanceAttr::Keyword_single_inheritance;
+    if (has_virtual) {
+      keyword = clang::MSInheritanceAttr::Keyword_virtual_inheritance;
+    } else if (bases.size() > 1) {
+      keyword = clang::MSInheritanceAttr::Keyword_multiple_inheritance;
+    }
+
+
+    auto attr = clang::MSInheritanceAttr::CreateImplicit(m_ast.getASTContext(),
+                                                          keyword);
+    auto rec = m_ast.GetAsCXXRecordDecl(clang_type.GetOpaqueQualType());
+    rec->dropAttr<clang::MSInheritanceAttr>();
+    rec->addAttr(attr);
+  }
+
   m_ast.AddMethodOverridesForCXXRecordType(clang_type.GetOpaqueQualType());
   TypeSystemClang::BuildIndirectFields(clang_type);
   TypeSystemClang::CompleteTagDeclarationDefinition(clang_type);
