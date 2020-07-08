@@ -412,6 +412,7 @@ lldb::ThreadPlanSP
 CPPLanguageRuntime::GetStepThroughTrampolinePlan(Thread &thread,
                                                  bool stop_others) {
   ThreadPlanSP ret_plan_sp;
+  return ret_plan_sp;
 
   lldb::addr_t curr_pc = thread.GetRegisterContext()->GetPC();
 
