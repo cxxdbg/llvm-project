@@ -79,6 +79,10 @@ protected:
 
   std::string GetRunAs();
 
+protected:
+  /// Sets device ID and checks connection to it
+  Status SetDeviceID(const std::string & id);
+
 private:
   AdbClient::SyncService *GetSyncService(Status &error);
 

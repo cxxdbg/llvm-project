@@ -424,8 +424,15 @@ SBProcess SBTarget::Launch(SBLaunchInfo &sb_launch_info, SBError &error) {
 
     if (!launch_info.GetExecutableFile()) {
       Module *exe_module = target_sp->GetExecutableModulePointer();
-      if (exe_module)
+      if (exe_module) {
         launch_info.SetExecutableFile(exe_module->GetPlatformFileSpec(), true);
+      } else {
+        // try use path to execuble saved in target properties
+        auto exe_file = target_sp->GetProcessLaunchInfo().GetExecutableFile();
+        if (exe_file) {
+          launch_info.SetExecutableFile(exe_file, true);
+        }
+      }
     }
 
     const ArchSpec &arch_spec = target_sp->GetArchitecture();

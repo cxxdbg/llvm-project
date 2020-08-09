@@ -313,26 +313,37 @@ Status TargetList::CreateTargetInternal(Debugger &debugger,
                                                  : nullptr);
     }
 
-    if (error.Success() && exe_module_sp) {
-      if (exe_module_sp->GetObjectFile() == nullptr) {
-        if (arch.IsValid()) {
-          error = Status::FromErrorStringWithFormat(
+    if (error.Success()) {
+      if (exe_module_sp) {
+        if (exe_module_sp->GetObjectFile() == nullptr) {
+          if (arch.IsValid()) {
+            error = Status::FromErrorStringWithFormat(
               "\"%s\" doesn't contain architecture %s", file.GetPath().c_str(),
               arch.GetArchitectureName());
-        } else {
-          error = Status::FromErrorStringWithFormat(
+          } else {
+            error = Status::FromErrorStringWithFormat(
               "unsupported file type \"%s\"", file.GetPath().c_str());
+          }
+          return error;
         }
-        return error;
+        target_sp.reset(new Target(debugger, arch, platform_sp, is_dummy_target));
+        debugger.GetTargetList().RegisterInProcessTarget(target_sp);
+        target_sp->SetExecutableModule(exe_module_sp, load_dependent_files);
+        if (user_exe_path_is_bundle)
+          exe_module_sp->GetFileSpec().GetPath(resolved_bundle_exe_path,
+                                              sizeof(resolved_bundle_exe_path));
+
+        if (target_sp->GetPreloadSymbols())
+          exe_module_sp->PreloadSymbols();
+      } else {
+        // Platform said there is no executable file for target. Process without it.
+        target_sp.reset(new Target(debugger, arch, platform_sp, is_dummy_target));
+
+        // saving path to executable in launch info to use later in platform
+        ProcessLaunchInfo lInfo;
+        lInfo.SetExecutableFile(file, false);
+        target_sp->SetProcessLaunchInfo(lInfo);
       }
-      target_sp.reset(new Target(debugger, arch, platform_sp, is_dummy_target));
-      debugger.GetTargetList().RegisterInProcessTarget(target_sp);
-      target_sp->SetExecutableModule(exe_module_sp, load_dependent_files);
-      if (user_exe_path_is_bundle)
-        exe_module_sp->GetFileSpec().GetPath(resolved_bundle_exe_path,
-                                             sizeof(resolved_bundle_exe_path));
-      if (target_sp->GetPreloadSymbols())
-        exe_module_sp->PreloadSymbols();
     }
   } else {
     // No file was specified, just create an empty target with any arch if a

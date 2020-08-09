@@ -474,6 +474,17 @@ std::string PlatformAndroid::GetRunAs() {
   return run_as.str();
 }
 
+Status PlatformAndroid::SetDeviceID(const std::string & id) {
+  AdbClient adb;
+  auto error = AdbClient::CreateByDeviceID(id, adb);
+  if (error.Fail()) {
+    return error;
+  }
+
+  m_device_id = adb.GetDeviceID();
+  return {};
+}
+
 AdbClient::SyncService *PlatformAndroid::GetSyncService(Status &error) {
   if (m_adb_sync_svc && m_adb_sync_svc->IsConnected())
     return m_adb_sync_svc.get();
