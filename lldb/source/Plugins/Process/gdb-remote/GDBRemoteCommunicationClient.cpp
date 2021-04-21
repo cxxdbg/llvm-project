@@ -1418,12 +1418,13 @@ bool GDBRemoteCommunicationClient::GetHostInfo(bool force) {
 }
 
 int GDBRemoteCommunicationClient::SendStdinNotification(const char *data,
-                                                        size_t data_len) {
+                                                        size_t data_len,
+                                                        const std::chrono::seconds & timeout) {
   StreamString packet;
   packet.PutCString("I");
   packet.PutBytesAsRawHex8(data, data_len);
   StringExtractorGDBRemote response;
-  if (SendPacketAndWaitForResponse(packet.GetString(), response) ==
+  if (SendPacketAndWaitForResponse(packet.GetString(), response, timeout) ==
       PacketResult::Success) {
     return 0;
   }

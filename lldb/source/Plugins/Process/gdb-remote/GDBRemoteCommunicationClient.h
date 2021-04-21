@@ -130,7 +130,8 @@ public:
   /// \return
   ///     Zero if the attach was successful, or an error indicating
   ///     an error code.
-  int SendStdinNotification(const char *data, size_t data_len);
+  int SendStdinNotification(const char *data, size_t data_len,
+                            const std::chrono::seconds & timeout);
 
   /// Sets the path to use for stdin/out/err for a process
   /// that will be launched with the 'A' packet.
