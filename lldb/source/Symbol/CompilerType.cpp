@@ -1205,15 +1205,15 @@ CompilerType::CompilerType(lldb::TypeSystemWP type_system,
   assert(Verify() && "verification failed");
 }
 
-#ifndef NDEBUG
 bool CompilerType::Verify() const {
+#ifndef NDEBUG
   if (!IsValid())
     return true;
   if (auto type_system_sp = GetTypeSystem())
     return type_system_sp->Verify(m_type);
+#endif
   return true;
 }
-#endif
 
 CompilerType::TypeSystemSPWrapper CompilerType::GetTypeSystem() const {
   return {m_type_system.lock()};

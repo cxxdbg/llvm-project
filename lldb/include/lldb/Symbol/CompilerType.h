@@ -535,12 +535,12 @@ public:
   GetDebuggerType() const;
 
 private:
-#ifndef NDEBUG
+//#ifndef NDEBUG
   /// If the type is valid, ask the TypeSystem to verify the integrity
   /// of the type to catch CompilerTypes that mix and match invalid
   /// TypeSystem/Opaque type pairs.
   bool Verify() const;
-#endif
+//#endif
 
   lldb::TypeSystemWP m_type_system;
   lldb::opaque_compiler_type_t m_type = nullptr;
