@@ -103,7 +103,7 @@ check_c_source_compiles(
 
 # You can only debug arm64e processes using an arm64e debugserver.
 option(LLDB_ENABLE_ARM64E_DEBUGSERVER "Build debugserver for arm64 and arm64e" OFF)
-if (BUILDING_FOR_ARM64_OSX AND LLDB_ENABLE_ARM64E_DEBUGSERVER)
+if (BUILDING_FOR_ARM64_OSX AND LLDB_ENABLE_ARM64E_DEBUGSERVER AND "${CMAKE_OSX_ARCHITECTURES}" STREQUAL "")
   set(CMAKE_OSX_ARCHITECTURES "arm64;arm64e")
 endif ()
 
