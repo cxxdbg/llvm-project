@@ -7794,7 +7794,9 @@ clang::CXXMethodDecl *TypeSystemClang::AddMethodToCXXRecordType(
   // instead of checking that function name is equal to operator()
   // because operator() may be a template instantiation with
   // name of form operator()<args>
-  if (is_artificial && strncmp(name.str().c_str(), "operator()", 10) != 0)
+  // SLDB-708: don't skip virtaul artificial function because backup
+  // pass in resolving dynamic type may use it
+  if (is_artificial && !is_virtual && strncmp(name.str().c_str(), "operator()", 10) != 0)
     return nullptr; // skip everything artificial
 
   const clang::ExplicitSpecifier explicit_spec(
