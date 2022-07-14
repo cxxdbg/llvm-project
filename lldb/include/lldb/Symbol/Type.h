@@ -18,6 +18,7 @@
 #include "lldb/Utility/ConstString.h"
 #include "lldb/Utility/UserID.h"
 #include "lldb/lldb-private.h"
+#include "lldb/lldb-defines.h"
 
 #include "llvm/ADT/APSInt.h"
 #include "llvm/ADT/DenseSet.h"
@@ -414,7 +415,7 @@ protected:
   lldb::TypeSP m_type_sp;
 };
 
-class Type : public std::enable_shared_from_this<Type>, public UserID {
+class LLDB_API Type : public std::enable_shared_from_this<Type>, public UserID {
 public:
   enum EncodingDataType {
     /// Invalid encoding.
@@ -621,7 +622,7 @@ private:
 // the two classes here are used by the public API as a backend to the SBType
 // and SBTypeList classes
 
-class TypeImpl {
+class LLDB_API TypeImpl {
 public:
   TypeImpl() = default;
 
@@ -776,7 +777,7 @@ protected:
 /// purposes.
 ///
 
-class TypeAndOrName {
+class LLDB_API TypeAndOrName {
 public:
   TypeAndOrName() = default;
   TypeAndOrName(lldb::TypeSP &type_sp);

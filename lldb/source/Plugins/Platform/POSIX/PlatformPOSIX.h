@@ -12,10 +12,11 @@
 #include <map>
 #include <memory>
 
+#include "lldb/lldb-defines.h"
 #include "lldb/Interpreter/Options.h"
 #include "lldb/Target/RemoteAwarePlatform.h"
 
-class PlatformPOSIX : public lldb_private::RemoteAwarePlatform {
+class LLDB_API PlatformPOSIX : public lldb_private::RemoteAwarePlatform {
 public:
   PlatformPOSIX(bool is_host);
 

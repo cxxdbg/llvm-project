@@ -13,6 +13,7 @@
 #include <string>
 
 // LLDB Headers
+#include "lldb/lldb-defines.h"
 #include "lldb/Utility/Flags.h"
 
 #include "lldb/Host/FileAction.h"
@@ -27,7 +28,7 @@ namespace lldb_private {
 //
 // Describes any information that is required to launch a process.
 
-class ProcessLaunchInfo : public ProcessInfo {
+class LLDB_API ProcessLaunchInfo : public ProcessInfo {
 public:
   ProcessLaunchInfo();
 

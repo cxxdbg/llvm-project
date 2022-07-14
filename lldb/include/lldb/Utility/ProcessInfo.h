@@ -9,6 +9,7 @@
 #ifndef LLDB_UTILITY_PROCESSINFO_H
 #define LLDB_UTILITY_PROCESSINFO_H
 
+#include "lldb/lldb-defines.h"
 #include "lldb/Utility/ArchSpec.h"
 #include "lldb/Utility/Args.h"
 #include "lldb/Utility/Environment.h"
@@ -28,7 +29,7 @@ class UserIDResolver;
 // out information for a process prior to launching it, or it can be used for
 // an instance of a process and can be filled in with the existing values for
 // that process.
-class ProcessInfo {
+class LLDB_API ProcessInfo {
 public:
   ProcessInfo();
 

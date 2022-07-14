@@ -13,6 +13,7 @@
 #include <optional>
 #include <string>
 
+#include "lldb/lldb-defines.h"
 #include "lldb/Utility/ConstString.h"
 
 #include "llvm/ADT/StringRef.h"
@@ -53,7 +54,7 @@ namespace lldb_private {
 /// are already split up, it makes it easy for us to compare only the
 /// basenames of a lot of file specifications without having to split up the
 /// file path each time to get to the basename.
-class FileSpec {
+class LLDB_API FileSpec {
 public:
   using Style = llvm::sys::path::Style;
 

@@ -12,10 +12,11 @@
 #include "llvm/ADT/StringRef.h"
 #include "llvm/Support/Error.h"
 #include "llvm/Support/Regex.h"
+#include "lldb/lldb-defines.h"
 
 namespace lldb_private {
 
-class RegularExpression {
+class LLDB_API RegularExpression {
 public:
   /// The default constructor that initializes the object state such that it
   /// contains no compiled regular expression.

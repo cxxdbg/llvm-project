@@ -15,11 +15,12 @@
 #include "lldb/Core/UniqueCStringMap.h"
 #include "lldb/Interpreter/OptionValue.h"
 #include "lldb/Interpreter/Property.h"
+#include "lldb/lldb-defines.h"
 
 namespace lldb_private {
 class Properties;
 
-class OptionValueProperties
+class LLDB_API OptionValueProperties
     : public Cloneable<OptionValueProperties, OptionValue>,
       public std::enable_shared_from_this<OptionValueProperties> {
 public:

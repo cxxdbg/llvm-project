@@ -102,7 +102,7 @@ class TypeSummaryOptions;
 /// Shared Pointer to the contained ValueObject,
 /// just do so by calling GetSP() on the contained object.
 
-class ValueObject {
+class LLDB_API ValueObject {
 public:
   enum GetExpressionPathFormat {
     eGetExpressionPathFormatDereferencePointers = 1,

@@ -9,6 +9,7 @@
 #ifndef LLDB_UTILITY_CONSTSTRING_H
 #define LLDB_UTILITY_CONSTSTRING_H
 
+#include "lldb/lldb-defines.h"
 #include "llvm/ADT/DenseMapInfo.h"
 #include "llvm/ADT/StringRef.h"
 #include "llvm/Support/FormatVariadic.h"
@@ -37,7 +38,7 @@ namespace lldb_private {
 /// No reference counting is done on strings that are added to the string
 /// pool, once strings are added they are in the string pool for the life of
 /// the program.
-class ConstString {
+class LLDB_API ConstString {
 public:
   /// Default constructor
   ///

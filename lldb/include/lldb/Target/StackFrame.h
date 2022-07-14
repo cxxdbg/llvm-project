@@ -25,6 +25,7 @@
 #include "lldb/Utility/StructuredData.h"
 #include "lldb/Utility/UserID.h"
 #include "lldb/ValueObject/ValueObjectList.h"
+#include "lldb/lldb-defines.h"
 
 namespace lldb_private {
 
@@ -40,7 +41,7 @@ namespace lldb_private {
 /// Local variables may be available, or not.  A register context may be
 /// available, or not.
 
-class StackFrame : public ExecutionContextScope,
+class LLDB_API StackFrame : public ExecutionContextScope,
                    public std::enable_shared_from_this<StackFrame> {
 public:
   enum ExpressionPathOption {

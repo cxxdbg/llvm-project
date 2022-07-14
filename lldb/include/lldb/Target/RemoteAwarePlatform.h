@@ -9,6 +9,7 @@
 #ifndef LLDB_TARGET_REMOTEAWAREPLATFORM_H
 #define LLDB_TARGET_REMOTEAWAREPLATFORM_H
 
+#include "lldb/lldb-defines.h"
 #include "lldb/Target/Platform.h"
 #include <optional>
 
@@ -16,7 +17,7 @@ namespace lldb_private {
 
 /// A base class for platforms which automatically want to be able to forward
 /// operations to a remote platform instance (such as PlatformRemoteGDBServer).
-class RemoteAwarePlatform : public Platform {
+class LLDB_API RemoteAwarePlatform : public Platform {
 public:
   using Platform::Platform;
 

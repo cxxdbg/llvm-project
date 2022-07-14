@@ -115,7 +115,7 @@ public:
 ///   eErrorTypeExpression   llvm::ErrorList<ExpressionError>
 ///   eErrorTypeWin32        Win32Error
 
-class Status {
+class LLDB_API Status {
 public:
   /// into ValueType.
   typedef uint32_t ValueType;

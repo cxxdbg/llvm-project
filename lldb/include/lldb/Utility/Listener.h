@@ -32,7 +32,7 @@ class Event;
 
 namespace lldb_private {
 
-class Listener : public std::enable_shared_from_this<Listener> {
+class LLDB_API Listener : public std::enable_shared_from_this<Listener> {
 public:
   typedef bool (*HandleBroadcastCallback)(lldb::EventSP &event_sp, void *baton);
 

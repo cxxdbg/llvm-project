@@ -17,12 +17,13 @@
 #include "lldb/Utility/UserID.h"
 #include "lldb/lldb-enumerations.h"
 #include "lldb/lldb-private.h"
+#include "lldb/lldb-defines.h"
 #include <memory>
 #include <vector>
 
 namespace lldb_private {
 
-class Variable : public UserID, public std::enable_shared_from_this<Variable> {
+class LLDB_API Variable : public UserID, public std::enable_shared_from_this<Variable> {
 public:
   typedef RangeVector<lldb::addr_t, lldb::addr_t> RangeList;
 

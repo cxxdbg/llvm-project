@@ -16,6 +16,7 @@
 #include "lldb/Symbol/Block.h"
 #include "lldb/Utility/UserID.h"
 #include "llvm/ADT/ArrayRef.h"
+#include "lldb/lldb-defines.h"
 
 #include <mutex>
 
@@ -396,7 +397,7 @@ private:
 ///
 /// The concrete information is the address range information and specific
 /// locations for an instance of this function.
-class Function : public UserID, public SymbolContextScope {
+class LLDB_API Function : public UserID, public SymbolContextScope {
 public:
   /// Construct with a compile unit, function UID, function type UID, optional
   /// mangled name, function type, and a section offset based address range.

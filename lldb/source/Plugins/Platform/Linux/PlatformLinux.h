@@ -15,7 +15,7 @@
 namespace lldb_private {
 namespace platform_linux {
 
-class PlatformLinux : public PlatformPOSIX {
+class LLDB_API PlatformLinux : public PlatformPOSIX {
 public:
   PlatformLinux(bool is_host);
 

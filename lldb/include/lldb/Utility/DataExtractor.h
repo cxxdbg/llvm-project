@@ -45,7 +45,7 @@ namespace lldb_private {
 /// offsets.
 ///
 /// \see DataBuffer
-class DataExtractor {
+class LLDB_API DataExtractor {
 public:
   /// \typedef DataExtractor::Type
   /// Type enumerations used in the dump routines.

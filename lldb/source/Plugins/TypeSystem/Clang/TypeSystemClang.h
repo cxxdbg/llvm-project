@@ -39,6 +39,7 @@
 #include "lldb/Utility/Flags.h"
 #include "lldb/Utility/Log.h"
 #include "lldb/lldb-enumerations.h"
+#include "lldb/lldb-defines.h"
 
 class DWARFASTParserClang;
 class PDBASTParser;
@@ -106,7 +107,7 @@ public:
 /// itself or it can adopt an existing clang::ASTContext (for example, when
 /// it is necessary to provide a TypeSystem interface for an existing
 /// clang::ASTContext that was created by clang::CompilerInstance).
-class TypeSystemClang : public TypeSystem {
+class LLDB_API TypeSystemClang : public TypeSystem {
   // LLVM RTTI support
   static char ID;
 
@@ -1366,6 +1367,7 @@ private:
       m_isolated_asts;
 };
 
+LLDB_API
 bool GetVBaseBitOffset(clang::VTableContextBase &vtable_ctx,
                        ValueObject &valobj,
                        const clang::ASTRecordLayout &record_layout,

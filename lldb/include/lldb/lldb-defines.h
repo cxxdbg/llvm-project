@@ -148,4 +148,16 @@
 #define LLDB_DEPRECATED_FIXME(MSG, FIX) LLDB_DEPRECATED(MSG)
 #endif
 
+#ifndef LLDB_API
+#if defined(_WIN32)
+#if defined(LLDB_IN_LIBLLDB)
+#define LLDB_API __declspec(dllexport)
+#else
+#define LLDB_API __declspec(dllimport)
+#endif
+#else // defined (_WIN32)
+#define LLDB_API
+#endif
+#endif
+
 #endif // LLDB_LLDB_DEFINES_H

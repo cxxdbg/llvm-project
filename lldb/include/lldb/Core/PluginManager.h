@@ -17,6 +17,7 @@
 #include "lldb/Utility/Status.h"
 #include "lldb/lldb-enumerations.h"
 #include "lldb/lldb-forward.h"
+#include "lldb/lldb-defines.h"
 #include "lldb/lldb-private-interfaces.h"
 #include "llvm/ADT/StringRef.h"
 
@@ -47,7 +48,7 @@ class CommandInterpreter;
 class Debugger;
 class StringList;
 
-class PluginManager {
+class LLDB_API PluginManager {
 public:
   static void Initialize();
 

@@ -17,6 +17,7 @@
 #include "lldb/lldb-private.h"
 #include "llvm/ADT/APSInt.h"
 #include "llvm/Support/Casting.h"
+#include "lldb/lldb-defines.h"
 
 namespace lldb_private {
 
@@ -33,7 +34,7 @@ class TypeSystem;
 /// pointer along.
 ///
 /// \see lldb_private::TypeSystem
-class CompilerType {
+class LLDB_API CompilerType {
 public:
   /// Creates a CompilerType with the given TypeSystem and opaque compiler type.
   ///

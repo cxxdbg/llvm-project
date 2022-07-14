@@ -9,6 +9,7 @@
 #ifndef LLDB_SOURCE_PLUGINS_PLATFORM_ANDROID_ADBCLIENT_H
 #define LLDB_SOURCE_PLUGINS_PLATFORM_ANDROID_ADBCLIENT_H
 
+#include "lldb/lldb-defines.h"
 #include "lldb/Utility/Status.h"
 #include <chrono>
 #include <functional>
@@ -23,7 +24,7 @@ class FileSpec;
 
 namespace platform_android {
 
-class AdbClient {
+class LLDB_API AdbClient {
 public:
   enum UnixSocketNamespace {
     UnixSocketNamespaceAbstract,
@@ -32,7 +33,7 @@ public:
 
   using DeviceIDList = std::list<std::string>;
 
-  class SyncService {
+  class LLDB_API SyncService {
     friend class AdbClient;
 
   public:

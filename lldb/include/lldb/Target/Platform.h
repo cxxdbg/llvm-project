@@ -33,6 +33,7 @@
 
 #include "llvm/Support/Compiler.h"
 #include "llvm/Support/Error.h"
+#include "lldb/lldb-defines.h"
 #include "llvm/Support/VersionTuple.h"
 
 namespace lldb_private {
@@ -73,7 +74,7 @@ typedef llvm::SmallVector<lldb::addr_t, 6> MmapArgList;
 ///     \li execute shell commands
 ///     \li listing and getting info for existing processes
 ///     \li attaching and possibly debugging the platform's kernel
-class Platform : public PluginInterface {
+class LLDB_API Platform : public PluginInterface {
 public:
   /// Default Constructor
   Platform(bool is_host_platform);

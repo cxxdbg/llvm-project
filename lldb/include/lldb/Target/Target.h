@@ -38,6 +38,7 @@
 #include "lldb/Utility/Timeout.h"
 #include "lldb/lldb-public.h"
 #include "llvm/ADT/StringRef.h"
+#include "lldb/lldb-defines.h"
 
 namespace lldb_private {
 
@@ -79,7 +80,7 @@ public:
   TargetExperimentalProperties();
 };
 
-class TargetProperties : public Properties {
+class LLDB_API TargetProperties : public Properties {
 public:
   TargetProperties(Target *target);
 
@@ -503,7 +504,7 @@ private:
 };
 
 // Target
-class Target : public std::enable_shared_from_this<Target>,
+class LLDB_API Target : public std::enable_shared_from_this<Target>,
                public TargetProperties,
                public Broadcaster,
                public ExecutionContextScope,

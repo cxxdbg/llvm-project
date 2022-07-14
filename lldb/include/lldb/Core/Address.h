@@ -59,7 +59,7 @@ struct LineEntry;
 /// load addresses of the main executable and any images (shared libraries)
 /// will be  resolved/unresolved. When this happens, breakpoints that are in
 /// one of these sections can be set/cleared.
-class Address {
+class LLDB_API Address {
 public:
   /// Dump styles allow the Address::Dump(Stream *,DumpStyle) const function
   /// to display Address contents in a variety of ways.
@@ -131,6 +131,33 @@ public:
       : m_section_wp(rhs.m_section_wp), m_offset(rhs.m_offset) {}
 
   /// Construct with a section pointer and offset.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
   ///
   /// Initialize the address with the supplied \a section and \a offset.
   ///

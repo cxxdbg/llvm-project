@@ -21,7 +21,7 @@
 namespace lldb_private {
 namespace platform_android {
 
-class PlatformAndroidRemoteGDBServer
+class LLDB_API PlatformAndroidRemoteGDBServer
     : public platform_gdb_server::PlatformRemoteGDBServer {
 public:
   PlatformAndroidRemoteGDBServer() = default;

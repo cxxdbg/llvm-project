@@ -20,7 +20,7 @@
 namespace lldb_private {
 namespace platform_gdb_server {
 
-class PlatformRemoteGDBServer : public Platform, private UserIDResolver {
+class LLDB_API PlatformRemoteGDBServer : public Platform, private UserIDResolver {
 public:
   static void Initialize();
 

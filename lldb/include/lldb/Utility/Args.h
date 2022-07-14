@@ -11,6 +11,7 @@
 
 #include "lldb/Utility/Environment.h"
 #include "lldb/lldb-private-types.h"
+#include "lldb/lldb-defines.h"
 #include "lldb/lldb-types.h"
 #include "llvm/ADT/ArrayRef.h"
 #include "llvm/ADT/StringExtras.h"
@@ -30,7 +31,7 @@ namespace lldb_private {
 /// quotes) surrounding the argument. Spaces can be escaped using a \
 /// character to avoid having to surround an argument that contains a space
 /// with quotes.
-class Args {
+class LLDB_API Args {
 public:
   struct ArgEntry {
   private:

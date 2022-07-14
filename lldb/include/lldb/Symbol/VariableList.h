@@ -12,10 +12,11 @@
 #include "lldb/Symbol/SymbolContext.h"
 #include "lldb/Symbol/Variable.h"
 #include "lldb/lldb-private.h"
+#include "lldb/lldb-defines.h"
 
 namespace lldb_private {
 
-class VariableList {
+class LLDB_API VariableList {
   typedef std::vector<lldb::VariableSP> collection;
 
 public:

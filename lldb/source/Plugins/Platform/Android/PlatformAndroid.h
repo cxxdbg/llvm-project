@@ -19,7 +19,7 @@
 namespace lldb_private {
 namespace platform_android {
 
-class PlatformAndroid : public platform_linux::PlatformLinux {
+class LLDB_API PlatformAndroid : public platform_linux::PlatformLinux {
 public:
   PlatformAndroid(bool is_host);
 

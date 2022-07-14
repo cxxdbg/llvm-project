@@ -12,6 +12,7 @@
 #include "lldb/Utility/CompletionRequest.h"
 #include "lldb/lldb-enumerations.h"
 #include "lldb/lldb-forward.h"
+#include "lldb/lldb-defines.h"
 #include "lldb/lldb-private-enumerations.h"
 #include "llvm/ADT/StringRef.h"
 #include "llvm/TargetParser/Triple.h"
@@ -28,7 +29,7 @@ namespace lldb_private {
 /// string representation, or an llvm::Triple.  Keeping all of the conversions
 /// of strings to architecture enumeration values confined to this class
 /// allows new architecture support to be added easily.
-class ArchSpec {
+class LLDB_API ArchSpec {
 public:
   enum MIPSSubType {
     eMIPSSubType_unknown,

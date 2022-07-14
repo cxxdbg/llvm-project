@@ -21,6 +21,7 @@
 #include "DWARFFormValue.h"
 #include "LogChannelDWARF.h"
 #include "lldb/Core/PluginInterface.h"
+#include "lldb/lldb-defines.h"
 
 #include "Plugins/ExpressionParser/Clang/ClangASTImporter.h"
 #include "Plugins/Language/ObjC/ObjCLanguage.h"
@@ -41,7 +42,7 @@ class SymbolFileDWARF;
 
 struct ParsedDWARFTypeAttributes;
 
-class DWARFASTParserClang : public lldb_private::plugin::dwarf::DWARFASTParser {
+class LLDB_API DWARFASTParserClang : public lldb_private::plugin::dwarf::DWARFASTParser {
 public:
   DWARFASTParserClang(lldb_private::TypeSystemClang &ast);
 

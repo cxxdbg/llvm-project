@@ -13,6 +13,7 @@
 
 #include "lldb/Target/StackID.h"
 #include "lldb/lldb-private.h"
+#include "lldb/lldb-defines.h"
 
 namespace lldb_private {
 
@@ -289,7 +290,7 @@ protected:
 /// for passing down to other functions that also require specific contexts.
 /// They should NOT be used for long term storage, for long term storage use
 /// ExecutionContextRef objects.
-class ExecutionContext {
+class LLDB_API ExecutionContext {
 public:
   /// Default Constructor.
   ExecutionContext();

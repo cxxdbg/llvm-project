@@ -58,6 +58,7 @@
 #include "lldb/Utility/UnimplementedError.h"
 #include "lldb/Utility/UserIDResolver.h"
 #include "lldb/lldb-private.h"
+#include "lldb/lldb-defines.h"
 
 #include "llvm/ADT/AddressRanges.h"
 #include "llvm/ADT/ArrayRef.h"
@@ -336,7 +337,7 @@ inline bool operator!=(const ProcessModID &lhs, const ProcessModID &rhs) {
 
 /// \class Process Process.h "lldb/Target/Process.h"
 /// A plug-in interface definition class for debugging a process.
-class Process : public std::enable_shared_from_this<Process>,
+class LLDB_API Process : public std::enable_shared_from_this<Process>,
                 public ProcessProperties,
                 public Broadcaster,
                 public ExecutionContextScope,
@@ -408,7 +409,7 @@ public:
                                   lldb::StateType state);
   } Notifications;
 
-  class ProcessEventData : public EventData {
+  class LLDB_API ProcessEventData : public EventData {
     friend class Process;
 
   public:

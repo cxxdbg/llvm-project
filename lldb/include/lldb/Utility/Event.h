@@ -33,7 +33,7 @@ class Stream;
 namespace lldb_private {
 
 // lldb::EventData
-class EventData {
+class LLDB_API EventData {
   friend class Event;
 
 public:
@@ -177,7 +177,7 @@ private:
 };
 
 // lldb::Event
-class Event : public std::enable_shared_from_this<Event> {
+class LLDB_API Event : public std::enable_shared_from_this<Event> {
   friend class Listener;
   friend class EventData;
   friend class Broadcaster::BroadcasterImpl;

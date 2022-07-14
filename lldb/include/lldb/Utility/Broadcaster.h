@@ -143,7 +143,7 @@ private:
 ///             ...
 ///         };
 ///     \endcode
-class Broadcaster {
+class LLDB_API Broadcaster {
   friend class Listener;
   friend class Event;
 
@@ -333,7 +333,7 @@ protected:
   ///
   /// For the most part, the Broadcaster functions dispatch to the
   /// BroadcasterImpl, and are documented in the public Broadcaster API above.
-  class BroadcasterImpl {
+  class LLDB_API BroadcasterImpl {
     friend class Listener;
     friend class Broadcaster;
 

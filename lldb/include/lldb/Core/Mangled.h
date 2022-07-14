@@ -12,6 +12,8 @@
 #include "lldb/lldb-enumerations.h"
 #include "lldb/lldb-forward.h"
 #include "lldb/lldb-types.h"
+#include "lldb/lldb-defines.h"
+
 #include "lldb/Utility/ConstString.h"
 #include "llvm/ADT/StringRef.h"
 
@@ -30,7 +32,7 @@ namespace lldb_private {
 /// class for their mangled names. Uniqued string pools are used for the
 /// mangled, demangled, and token string values to allow for faster
 /// comparisons and for efficient memory use.
-class Mangled {
+class LLDB_API Mangled {
 public:
   enum NamePreference {
     ePreferMangled,
