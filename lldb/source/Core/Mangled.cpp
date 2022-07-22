@@ -155,6 +155,55 @@ static char *GetMSVCDemangledStr(llvm::StringRef M) {
   return demangled_cstr;
 }
 
+
+/// Checks that left and right parens match in name
+static bool check_parens_match(llvm::StringRef name) {
+  int num_parens = 0;
+
+  for (size_t i = 0, sz = name.size(); i < sz; ++i) {
+    if (name[i] == '(') {
+      ++num_parens;
+    } else if (name[i] == ')') {
+      if (num_parens == 0) {
+        // invalid right )
+        return false;
+      }
+
+      --num_parens;
+    }
+  }
+
+  return num_parens == 0;
+}
+
+
+/// Handles special mangling cases for workaround for bugs in llvm and gnu demangler.
+/// Returns non null pointer to null-terminated string if the original string should be
+/// replaced with it.
+/// (SLDB-755)
+static char * handle_special_demangle_cases(llvm::StringRef mangled, llvm::StringRef demangled) {
+  if (check_parens_match(demangled)) {
+    return nullptr;
+  }
+
+  if (Log *log = GetLog(LLDBLog::DynamicLoader)) {
+    LLDB_LOGF(log, "invalid demangled name, using backup path: %s", demangled.str().c_str());
+  }
+
+  // checking for special cases that even __cxa_demangle can't handle correctly
+  if (mangled.starts_with("_ZNSt3__18__invokeIRPF")) {
+    using namespace std::literals;
+    static const llvm::StringRef res_sview = "declspec(demangle_error) std::__1::__invoke<demangle_error>";
+    char * res = (char*)malloc(res_sview.size() + 1);
+    memcpy(res, res_sview.data(), res_sview.size());
+    res[res_sview.size()] = 0;
+    return res;
+  }
+
+  // try using __cxa_demangle as final backup path
+  return abi::__cxa_demangle(mangled.str().c_str(), NULL, NULL, NULL);
+}
+
 static char *GetItaniumDemangledStr(const char *M) {
   char *demangled_cstr = nullptr;
 
@@ -172,6 +221,14 @@ static char *GetItaniumDemangledStr(const char *M) {
            "Expected demangled_size to return length including trailing null");
   } else {
     demangled_cstr = abi::__cxa_demangle(M, NULL, NULL, NULL);
+  }
+
+  // workaround for bug in the ItaniumPartialDemangler (SLDB-755)
+  // Check if left and right parens are match in demandled name.
+  // Overwise use __cxa_demangle
+  if (auto new_demangled = handle_special_demangle_cases(M, demangled_cstr)) {
+    free(demangled_cstr);
+    demangled_cstr = new_demangled;
   }
 
   if (Log *log = GetLog(LLDBLog::Demangle)) {
@@ -233,7 +290,23 @@ bool Mangled::GetRichManglingInfo(RichManglingContext &context,
   case eManglingSchemeItanium:
     // We want the rich mangling info here, so we don't care whether or not
     // there is a demangled string in the pool already.
-    return context.FromItaniumName(m_mangled);
+    if (context.FromItaniumName(m_mangled)) {
+      // If we got an info, we have a name. Copy to string pool and connect the
+      // counterparts to accelerate later access in GetDemangledName().
+      context.ParseFullName();
+
+      if (auto new_demangled = handle_special_demangle_cases(m_mangled.GetStringRef(), context.ParseFullName())) {
+        m_demangled.SetStringWithMangledCounterpart(new_demangled, m_mangled);
+        free(new_demangled);
+      } else {
+        m_demangled.SetStringWithMangledCounterpart(context.ParseFullName(),
+                                                    m_mangled);
+      }
+      return true;
+    } else {
+      m_demangled.SetCString("");
+      return false;
+    }
 
   case eManglingSchemeMSVC: {
     // We have no rich mangling for MSVC-mangled names yet, so first try to
@@ -277,6 +350,17 @@ bool Mangled::GetRichManglingInfo(RichManglingContext &context,
 ConstString Mangled::GetDemangledName() const {
   // Check to make sure we have a valid mangled name and that we haven't
   // already decoded our mangled name.
+
+  if (Log *log = GetLog(LLDBLog::Demangle)) {
+    if (m_mangled) {
+      LLDB_LOGF(log, "GetDemangledName: %s\n", m_mangled.GetCString());
+
+      if (!m_demangled.IsNull()) {
+        LLDB_LOGF(log, "GetDemangledName: already demangled: %s\n", m_demangled.GetCString());
+      }
+    }
+  }
+
   if (m_mangled && m_demangled.IsNull()) {
     // Don't bother running anything that isn't mangled
     const char *mangled_name = m_mangled.GetCString();
