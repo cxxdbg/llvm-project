@@ -4693,8 +4693,13 @@ CompilerType TypeSystemClang::CreateTypedef(
     // Check whether this declaration is an anonymous struct, union, or enum,
     // hidden behind a typedef. If so, we try to check whether we have a
     // typedef tag to attach to the original record declaration
-    if (tdecl && !tdecl->getIdentifier() && !tdecl->getTypedefNameForAnonDecl())
-      tdecl->setTypedefNameForAnonDecl(decl);
+    if (tdecl && !tdecl->getIdentifier() && !tdecl->getTypedefNameForAnonDecl()) {
+      // SLDB-764: doing this only if typedef and typedefed type are in same decl context.
+      // Doing this for all typedefs prevents correct formatting of lambda variables.
+      if (decl->getDeclContext() == tdecl->getDeclContext()) {
+        tdecl->setTypedefNameForAnonDecl(decl);
+      }
+    }
 
     decl->setAccess(clang::AS_public); // TODO respect proper access specifier
 
