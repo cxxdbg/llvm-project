@@ -117,3 +117,22 @@ end subroutine
 
 ! HLFIR-LABEL: func.func @_QPallocator_scalar_types
 ! HLFIR: } {allocate_private_indices = array<i64: 0, 1, 2, 3>}
+
+subroutine allocator_alignment(x, y, z, w)
+  use omp_lib
+  integer :: x, y, z, w
+  !$omp parallel private(x, y, z) firstprivate(w) &
+  !$omp& allocate(x) &
+  !$omp& allocate(align(64): y, z) &
+  !$omp& allocate(allocator(omp_default_mem_alloc), align(128): w)
+    x = 1
+    y = 2
+    z = 3
+    w = w + 1
+  !$omp end parallel
+end subroutine
+
+! HLFIR-LABEL: func.func @_QPallocator_alignment
+! HLFIR: omp.parallel allocate(
+! HLFIR-SAME: private(
+! HLFIR: } {allocate_alignments = array<i64: 0, 64, 64, 128>, allocate_private_indices = array<i64: 0, 1, 2, 3>}
