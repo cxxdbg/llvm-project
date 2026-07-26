@@ -51,6 +51,7 @@ class AMDGPUGPUInfo<list<int> isa = []> {
   list<AMDGPUArchFeature> ArchFeatures = [];
   list<int> IsaVersion = isa;
   list<string> CoveredGPUs = [];
+  bit IsPseudoTarget = false;
 }
 // A malformed IsaVersion is reported (not asserted), so this stays a clean
 // diagnostic in release builds.
