@@ -2,6 +2,12 @@ _ZN4lldb*
 _ZNK4lldb*
 _ZN12lldb_private*
 _ZNK12lldb_private*
+_ZTVN12lldb_private*
+_ZTIN12lldb_private*
+_ZN13PlatformPOSIX*
+_ZNK13PlatformPOSIX*
+_ZN19DWARFASTParserClang*
+_ZNK19DWARFASTParserClang*
 init_lld*
 PyInit__lldb*
 luaopen_lldb*
