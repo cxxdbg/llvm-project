@@ -90,6 +90,33 @@ static bool disable_color(const raw_ostream &OS) { return false; }
 
 static Driver *g_driver = nullptr;
 
+
+// LLDB driver library hooks
+#ifdef LLDB_DRIVER_LIBRARY
+
+using lldb_driver_version_hook_type = std::string (*)();
+using lldb_driver_help_hook_type = std::string (*)();
+using lldb_driver_init_hook_type = std::string (*)(const SBDebugger & debugger);
+
+static lldb_driver_version_hook_type lldb_driver_version_hook = nullptr;
+static lldb_driver_help_hook_type lldb_driver_help_hook = nullptr;
+static lldb_driver_init_hook_type lldb_driver_init_hook = nullptr;
+
+void set_lldb_driver_version_hook(lldb_driver_version_hook_type h) {
+  lldb_driver_version_hook = h;
+}
+
+void set_lldb_driver_help_hook(lldb_driver_help_hook_type h) {
+  lldb_driver_help_hook = h;
+}
+
+void set_lldb_driver_init_hook(lldb_driver_init_hook_type h) {
+  lldb_driver_init_hook = h;
+}
+
+#endif
+
+
 // In the Driver::MainLoop, we change the terminal settings.  This function is
 // added as an atexit handler to make sure we clean them up.
 static void reset_stdin_termios() {
@@ -376,6 +403,11 @@ SBError Driver::ProcessArgs(const opt::InputArgList &args, bool &exiting) {
   }
 
   if (m_option_data.m_print_version) {
+#ifdef LLDB_DRIVER_LIBRARY
+    if (lldb_driver_version_hook) {
+      llvm::outs() << (*lldb_driver_version_hook)();
+    }
+#endif
     llvm::outs() << lldb::SBDebugger::GetVersionString() << '\n';
     exiting = true;
     return error;
@@ -683,6 +715,12 @@ static void sigtstp_handler(int signo) {
 #endif
 
 static void printHelp(LLDBOptTable &table, llvm::StringRef tool_name) {
+#ifdef LLDB_DRIVER_LIBRARY
+  if (lldb_driver_help_hook) {
+    llvm::outs() << (*lldb_driver_help_hook)();
+  }
+#endif // LLDB_DRIVER_LIBRARY
+
   std::string usage_str = tool_name.str() + " [options]";
   table.printHelp(llvm::outs(), usage_str.c_str(), "LLDB", false);
 
@@ -728,7 +766,11 @@ EXAMPLES:
   llvm::outs() << examples << '\n';
 }
 
+#ifdef LLDB_DRIVER_LIBRARY
+int lldb_driver_main(int argc, char const *argv[]) {
+#else
 int main(int argc, char const *argv[]) {
+#endif
   // Editline uses for example iswprint which is dependent on LC_CTYPE.
   std::setlocale(LC_ALL, "");
   std::setlocale(LC_CTYPE, "");
@@ -807,6 +849,14 @@ int main(int argc, char const *argv[]) {
       if (const char *error_cstr = error.GetCString())
         WithColor::error() << error_cstr << '\n';
     } else if (!exiting) {
+      // additional customizable initialization hook for driver
+#ifdef LLDB_DRIVER_LIBRARY
+      if (lldb_driver_init_hook) {
+        auto msg = (*lldb_driver_init_hook)(driver.GetDebugger());
+        llvm::outs() << msg;
+      }
+#endif // LLDB_DRIVER_LIBRARY
+
       exit_code = driver.MainLoop();
     }
   }
