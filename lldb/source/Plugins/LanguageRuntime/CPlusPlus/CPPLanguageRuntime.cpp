@@ -107,6 +107,15 @@ public:
 
 CPPLanguageRuntime::CPPLanguageRuntime(Process *process)
     : LanguageRuntime(process) {
+
+  // The ShouldHide method from LibCXXFrameRecognizer is used in
+  // ThreadPlanStepOut when computing target of step out.
+  // That causes stepping out of a frame that doesn't match
+  // step-through-regexp to go outside of libc++ frames and
+  // breaks stepping through libc++ code in cxxdbg (#11)
+
+  return;
+
   if (process)
     process->GetTarget().GetFrameRecognizerManager().AddRecognizer(
         StackFrameRecognizerSP(new LibCXXFrameRecognizer()), {},
